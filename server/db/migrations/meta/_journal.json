@@ -15,6 +15,20 @@
       "when": 1789146385997,
       "tag": "0001_shallow_greymalkin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789149204582,
+      "tag": "0002_ancient_centennial",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789152368319,
+      "tag": "0003_stormy_the_professor",
+      "breakpoints": true
     }
   ]
 }

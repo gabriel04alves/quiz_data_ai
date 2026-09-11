@@ -1,4 +1,5 @@
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable(
@@ -67,8 +68,11 @@ export const rounds = sqliteTable(
     correctCount: integer('correct_count').notNull().default(0),
   },
   table => [
-    uniqueIndex('rounds_user_id_game_date_unique').on(table.userId, table.gameDate),
+    index('rounds_user_id_game_date_idx').on(table.userId, table.gameDate),
     index('rounds_played_at_idx').on(table.playedAt),
+    // Garante no banco que só existe uma rodada em andamento por usuário
+    // (SPEC.md §6.3) — índice parcial, não checagem de aplicação.
+    uniqueIndex('rounds_user_in_progress_unique').on(table.userId).where(sql`${table.playedAt} is null`),
   ],
 )
 

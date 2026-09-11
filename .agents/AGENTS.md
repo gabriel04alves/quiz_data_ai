@@ -31,7 +31,7 @@ Se durante a implementação uma dessas escolhas parecer inadequada, **pare e me
 1b. **O sorteio do material é do código, não do modelo.** `chunk-sampler.ts` escolhe os 7 chunks; o LLM só redige as perguntas sobre eles. Nunca peça ao modelo para escolher sobre o que perguntar.
 2. **`correct_index` nunca vai para o cliente antes da resposta, e perguntas futuras nunca vão junto.** O cliente recebe uma pergunta por vez via `pergunta.get.ts`, com enunciado e alternativas apenas. A resposta correta só aparece no retorno de `responder.post.ts`, depois que o usuário já escolheu.
 3. **O timer autoritativo é o servidor.** O cliente manda `client_elapsed_ms` só para UX; a pontuação usa `now - served_at` calculado no servidor. Nunca confie no tempo reportado pelo cliente para pontuar.
-3b. **Uma tentativa por dia, consumida no início.** A trava é o índice UNIQUE `rounds(user_id, game_date)` — garantia no banco, não checagem na aplicação. E falha de LLM ou infraestrutura nunca pode queimar a tentativa do jogador (`SPEC.md` §5.6).
+3b. **Tentativas ilimitadas, mas uma rodada em andamento por vez.** Não há trava diária nem constraint em `rounds(user_id, game_date)`. A trava é o índice único parcial `rounds(user_id) WHERE played_at IS NULL` — garantia no banco, não checagem na aplicação — e rodada abandonada há mais de 10 minutos é finalizada sozinha com o score parcial na próxima leitura relevante. Falha de LLM ou infraestrutura nunca deixa rodada pela metade no histórico (`SPEC.md` §6.3, §5.6).
 4. **`content/` tem exatamente um nível de subpastas**, e o nome da subpasta é o tópico. Não invente frontmatter, arquivo de config de tópicos, nem leitura recursiva profunda. Ver `SPEC.md` §5.0.
 5. **A UI nunca lê o filesystem.** A lista de tópicos vem de `SELECT DISTINCT topic FROM chunks`.
 6. **Sem autenticação verificada.** Validação de domínio por regex é o escopo inteiro. Não adicione envio de e-mail, código de confirmação ou OAuth "para melhorar a segurança" — é uma decisão consciente documentada em `SPEC.md` §4.2.
@@ -53,7 +53,7 @@ Da mesma forma: não adicione features que não estão na spec. Sem badges, sem 
 
 ## Ordem de implementação sugerida
 
-Ver `tasks/README.md` para a decomposição completa. Resumo: T01 setup, T02 design system, T03 schema, T04 indexação de conteúdo, T05 sorteio + gerador de perguntas, T06 entrada e sessão, T07 fluxo de rodada, T08 tentativa diária, T09 ranking e histórico, T10 reportar, T11 deploy.
+Ver `docs/SPECs/` para a decomposição completa. Resumo: T01 setup, T02 design system, T03 schema, T04 indexação de conteúdo, T05 sorteio + gerador de perguntas, T06 entrada e sessão, T07 fluxo de rodada, T08 tentativas ilimitadas, T09 ranking e histórico, T10 reportar, T11 deploy, T12 landing e revitalização visual arcade (antes de T11).
 
 Não avance para o próximo item sem o anterior funcionando.
 

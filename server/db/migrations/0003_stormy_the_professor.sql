@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `rounds_user_in_progress_unique` ON `rounds` (`user_id`) WHERE "rounds"."played_at" is null;

@@ -256,24 +256,30 @@ O jogador nunca fica com uma rodada quebrada no histórico por erro de infraestr
 
 7 perguntas de múltipla escolha, 4 alternativas, exatamente uma correta. Orçamento total de ~5 minutos:
 
-| Posição | Dificuldade | Tempo | Pontos base |
+| Posição | Dificuldade | Tempo de referência | Pontos base |
 |---|---|---|---|
 | 1–2 | Fácil | 25s | 100 |
 | 3–5 | Médio | 35s | 200 |
 | 6–7 | Difícil | 45s | 300 |
 
-Somando o feedback pós-resposta (~5s por pergunta), a rodada fecha em torno de 278s.
+**O tempo não encerra a pergunta.** Não há limite duro: o jogador responde quando quiser e a
+pergunta continua respondível depois do tempo de referência. Esse tempo define apenas até
+quando existe bônus de agilidade (§6.2). Jogando no ritmo de referência a rodada fecha em
+torno de 278s, contando o feedback pós-resposta (~5s por pergunta).
 
-O tempo sobe junto com a dificuldade por decisão de design: tempo fixo penalizaria a pergunta difícil e tornaria o bônus de velocidade uma loteria.
+O tempo de referência sobe junto com a dificuldade por decisão de design: tempo fixo
+penalizaria a pergunta difícil e tornaria o bônus de velocidade uma loteria.
 
 ### 6.2 Pontuação
 
 ```
-fator_velocidade = tempo_restante_ms / tempo_limite_ms      // 0 a 1
-pontos = round( base(dificuldade) × (1 + fator_velocidade) )
+fator_velocidade = max(0, (tempo_limite_ms - decorrido_ms) / tempo_limite_ms)   // 0 a 1
+pontos = acerto ? round( base(dificuldade) × (1 + fator_velocidade) ) : 0
 ```
 
-Erro ou tempo esgotado: 0 pontos. Máximo teórico da rodada: 2.520.
+Erro: 0 pontos. Acerto depois do tempo de referência: base cheia, sem bônus — o `max(0, …)`
+zera o fator, nunca a pontuação. Máximo teórico da rodada: 2.520; mínimo de uma rodada toda
+correta sem bônus: 1.260.
 
 Exemplos de referência para teste:
 
@@ -282,6 +288,8 @@ Exemplos de referência para teste:
 | Difícil, 9s usados de 45s | 300 × (1 + 0,80) | 540 |
 | Difícil, 40s usados de 45s | 300 × (1 + 0,11) | 333 |
 | Fácil, 5s usados de 25s | 100 × (1 + 0,80) | 180 |
+| Difícil, 90s usados de 45s | 300 × (1 + 0) | 300 |
+| Qualquer erro | — | 0 |
 
 **Sem bônus de streak.** Com 7 perguntas e dificuldade crescente, streak concentraria prêmio em quem pegou uma leva favorável; o fator de velocidade já cria variação suficiente.
 
@@ -310,7 +318,7 @@ Exemplos de referência para teste:
 
 3. `POST /api/rodada/:roundId/responder` com `{ question_id, chosen_index, client_elapsed_ms }`
    - Calcula `elapsed_server = now - served_at`. Ignora `client_elapsed_ms` para pontuar.
-   - `elapsed_server > time_limit_ms` (com tolerância de rede de 1500ms) → 0 pontos.
+   - `elapsed_server > time_limit_ms` não invalida a resposta: só zera o bônus de agilidade.
    - Aplica a fórmula de §6.2, atualiza `round_questions` e soma em `rounds`.
    - Retorna `{ is_correct, correct_index, explanation, points_earned, position, total_positions }`.
 
@@ -324,6 +332,8 @@ O cliente recebe uma pergunta por vez (endpoint 2), não o lote inteiro. As 7 j�
 ### 6.6 Tela de preparação
 
 Entre o clique em "Começar" e a primeira pergunta há a chamada ao LLM (~8–12s). Essa espera precisa de tela própria, com indicação de progresso e texto explicando que as perguntas estão sendo sorteadas e escritas para aquele jogador. Timeout visual em 20s, sincronizado com o fallback de §5.6.
+
+O `roundId` só existe depois que `POST /api/rodada/iniciar` retorna — é ele quem chama o LLM e pode reverter a rodada. Por isso a preparação é um **estado da própria `/jogar`**, não uma rota anterior à rodada; `/jogar/[roundId]/preparando` existe apenas como redirect para a rodada já criada (reload/bookmark).
 
 ### 6.7 Limites de justiça (documentar, não resolver)
 
@@ -351,7 +361,7 @@ Ranking **geral acumulado**, visível para todos os usuários logados.
 |---|---|
 | `/` | Sem sessão: form de e-mail. Com sessão: ranking geral (todos os usuários) + card com a pontuação e a posição do usuário logado + botão "Jogar" |
 | `/jogar` | Seletor de tópico, aviso de que sair no meio encerra a rodada com o score parcial, botão "Começar" |
-| `/jogar/[roundId]/preparando` | Tela de preparação durante a chamada ao LLM (§6.6) |
+| `/jogar/[roundId]/preparando` | Redirect para `/jogar/[roundId]`: a preparação acontece dentro de `/jogar`, onde a rodada ainda não tem id (§6.6) |
 | `/jogar/[roundId]` | Pergunta atual, indicador de dificuldade, timer, alternativas, feedback pós-resposta |
 | `/resultado/[roundId]` | Score final, acertos, quebra por pergunta, posição no ranking, botão "Jogar de novo" |
 | `/historico` | Rodadas anteriores do usuário: data, tópico, score, acertos |
@@ -413,7 +423,7 @@ Casos não cobertos pelo guia (cor de acerto, erro, tempo esgotado, indicador de
 **Jogo**
 - [ ] Rodada de 7 perguntas completa, com dificuldade e tempo subindo conforme §6.1
 - [ ] Payload inspecionado na aba Network nunca contém `correct_index` nem perguntas futuras
-- [ ] Resposta após o limite real do `served_at` conta 0, mesmo com `client_elapsed_ms` menor
+- [ ] Resposta após o tempo de referência vale a base cheia, sem bônus, mesmo com `client_elapsed_ms` menor
 - [ ] Resposta rápida em pergunta difícil pontua mais que resposta lenta em pergunta difícil
 - [ ] Os três exemplos de cálculo de §6.2 batem com a implementação
 - [ ] Responder duas vezes a mesma pergunta é rejeitado
