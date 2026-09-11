@@ -21,23 +21,6 @@ const errorMessage = shallowRef<string | null>(null)
 const isSubmitting = shallowRef(false)
 const { fetch } = useUserSession()
 
-// Prévia estática do formato (SPEC.md §6.1) — ilustrativa, sem dado real de jogador.
-const formatPreview = [
-  { difficulty: 'facil' as const, referenceTime: '25s', basePoints: 100 },
-  { difficulty: 'medio' as const, referenceTime: '35s', basePoints: 200 },
-  { difficulty: 'dificil' as const, referenceTime: '45s', basePoints: 300 },
-]
-
-// Regras do jogo (SPEC.md §6) — resumo estático para o cardzinho lateral da landing.
-const gameRules = [
-  'Sete perguntas por rodada, com dificuldade e pontuação crescentes.',
-  'Sem tempo máximo para responder — mas responder rápido rende bônus de agilidade.',
-  'Tentativas ilimitadas: jogue quantas rodadas quiser, a qualquer momento.',
-  'Só uma rodada em andamento por vez — comece outra e a anterior é encerrada.',
-  'Sair no meio encerra a rodada com os pontos já feitos e ela entra no ranking.',
-  'O ranking geral é acumulado: soma de todas as rodadas concluídas.',
-]
-
 function getErrorMessage(error: unknown): string {
   if (typeof error !== 'object' || error === null) {
     return 'não foi possível iniciar sua sessão, tente novamente'
@@ -76,7 +59,7 @@ async function submitLogin(): Promise<void> {
       <template #default="{ loggedIn: sessionLoggedIn, user: sessionUser }">
         <div
           v-if="sessionLoggedIn && sessionUser"
-          class="grid w-full max-w-3xl gap-6"
+          class="grid w-full max-w-5xl gap-8"
         >
           <AppCard tone="highlight">
             <p class="text-label uppercase text-primary">Sessão ativa</p>
@@ -91,12 +74,21 @@ async function submitLogin(): Promise<void> {
                 size="lg"
                 @click="navigateTo('/jogar')"
               >
+                <AppIcon
+                  name="play_arrow"
+                  :size="20"
+                />
                 Jogar
               </AppButton>
             </template>
           </AppCard>
 
-          <RankingOverview :user-id="sessionUser.id" />
+          <div class="grid gap-6 lg:grid-cols-[1fr_300px]">
+            <RankingOverview :user-id="sessionUser.id" />
+            <GameRulesCard />
+          </div>
+
+          <ScoringPreview />
         </div>
 
         <div
@@ -135,7 +127,13 @@ async function submitLogin(): Promise<void> {
 
             <div class="grid gap-6 lg:grid-cols-[1fr_300px]">
               <AppCard class="w-full">
-                <p class="text-label uppercase text-primary">Comece agora</p>
+                <p class="flex items-center gap-2 text-label uppercase text-primary">
+                  <AppIcon
+                    name="mail"
+                    :size="16"
+                  />
+                  Comece agora
+                </p>
                 <h2 class="mt-3 text-heading text-ink">Entre com seu e-mail corporativo</h2>
 
                 <form
@@ -159,62 +157,19 @@ async function submitLogin(): Promise<void> {
                     size="lg"
                     :is-loading="isSubmitting"
                   >
+                    <AppIcon
+                      name="login"
+                      :size="20"
+                    />
                     Entrar e jogar
                   </AppButton>
                 </form>
               </AppCard>
 
-              <AppCard
-                tone="highlight"
-                class="relative overflow-hidden"
-              >
-                <AppPixelCluster
-                  class="absolute -right-1 -top-1"
-                  tone="accent"
-                  :cell="3"
-                />
-                <template #header>
-                  <p class="text-label uppercase text-primary">Regras do jogo</p>
-                </template>
-                <ul class="grid gap-3">
-                  <li
-                    v-for="rule in gameRules"
-                    :key="rule"
-                    class="flex gap-2 text-small text-ink/80"
-                  >
-                    <span
-                      class="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary"
-                      aria-hidden="true"
-                    />
-                    {{ rule }}
-                  </li>
-                </ul>
-              </AppCard>
+              <GameRulesCard />
             </div>
 
-            <section aria-labelledby="formato-heading">
-              <h2
-                id="formato-heading"
-                class="text-heading text-ink"
-              >
-                Como funciona uma rodada
-              </h2>
-              <p class="mt-2 text-small text-ink/70">
-                A dificuldade — e a pontuação — sobem ao longo das 7 perguntas. Responder rápido
-                rende bônus de agilidade.
-              </p>
-              <ol class="mt-5 grid gap-3 sm:grid-cols-3">
-                <li
-                  v-for="step in formatPreview"
-                  :key="step.difficulty"
-                  class="rounded-xl border border-border bg-surface px-4 py-4"
-                >
-                  <DifficultyBadge :difficulty="step.difficulty" />
-                  <p class="mt-3 text-title text-primary-strong">{{ step.basePoints }}</p>
-                  <p class="text-small text-ink/60">pontos base · até {{ step.referenceTime }}</p>
-                </li>
-              </ol>
-            </section>
+            <ScoringPreview />
           </div>
         </div>
       </template>

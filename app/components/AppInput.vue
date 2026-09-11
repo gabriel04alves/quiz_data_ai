@@ -52,11 +52,12 @@ const supportText = computed(() => props.error ?? props.hint)
       class="text-small"
       :class="error ? 'font-semibold text-ink' : 'text-ink/70'"
     >
-      <span
+      <AppIcon
         v-if="error"
-        class="mr-1 text-incorrect"
-        aria-hidden="true"
-      >●</span>
+        name="error"
+        :size="16"
+        class="mr-1 -mt-0.5 text-incorrect"
+      />
       {{ supportText }}
     </p>
   </div>

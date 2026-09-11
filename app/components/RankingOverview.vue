@@ -44,7 +44,13 @@ async function loadMore(): Promise<void> {
 <template>
   <div class="grid gap-6">
     <AppCard v-if="me">
-      <p class="text-label uppercase text-primary">Sua posição</p>
+      <p class="flex items-center gap-2 text-label uppercase text-primary">
+        <AppIcon
+          name="military_tech"
+          :size="16"
+        />
+        Sua posição
+      </p>
       <div class="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <h2 class="text-title text-ink">
           {{ me.posicao === null ? 'Fora do ranking' : `${me.posicao}º lugar` }}
@@ -78,7 +84,14 @@ async function loadMore(): Promise<void> {
     </AppCard>
 
     <div>
-      <h2 class="mb-3 text-heading text-ink">Ranking geral</h2>
+      <h2 class="mb-3 flex items-center gap-2 text-heading text-ink">
+        <AppIcon
+          name="leaderboard"
+          :size="20"
+          class="text-primary"
+        />
+        Ranking geral
+      </h2>
       <RankingTable
         :entries="entries"
         :highlight-user-id="props.userId"
@@ -90,10 +103,11 @@ async function loadMore(): Promise<void> {
         v-if="loadMoreError"
         class="mt-3 text-small font-semibold text-ink"
       >
-        <span
-          class="mr-1 text-incorrect"
-          aria-hidden="true"
-        >●</span>
+        <AppIcon
+          name="error"
+          :size="16"
+          class="mr-1 -mt-0.5 text-incorrect"
+        />
         {{ loadMoreError }}
       </p>
     </div>

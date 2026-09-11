@@ -141,6 +141,10 @@ async function finishRound(): Promise<void> {
               :is-loading="isSubmitting"
               @click="finishRound"
             >
+              <AppIcon
+                name="flag"
+                :size="20"
+              />
               Ver resultado
             </AppButton>
             <AppButton
@@ -150,6 +154,10 @@ async function finishRound(): Promise<void> {
               @click="goNext"
             >
               Próxima pergunta
+              <AppIcon
+                name="arrow_forward"
+                :size="20"
+              />
             </AppButton>
           </div>
         </div>
@@ -167,6 +175,10 @@ async function finishRound(): Promise<void> {
           variant="secondary"
           @click="navigateTo('/jogar')"
         >
+          <AppIcon
+            name="arrow_back"
+            :size="20"
+          />
           Voltar para /jogar
         </AppButton>
       </template>
@@ -176,10 +188,11 @@ async function finishRound(): Promise<void> {
       v-if="errorMessage && question"
       class="mt-4 text-small font-semibold text-ink"
     >
-      <span
-        class="mr-1 text-incorrect"
-        aria-hidden="true"
-      >●</span>
+      <AppIcon
+        name="error"
+        :size="16"
+        class="mr-1 -mt-0.5 text-incorrect"
+      />
       {{ errorMessage }}
     </p>
   </section>

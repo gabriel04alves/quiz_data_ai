@@ -20,7 +20,14 @@ function topicLabel(topic: string | null): string {
         :cell="4"
       />
       <template #header>
-        <h1 class="text-heading text-ink">Seu histórico</h1>
+        <h1 class="flex items-center gap-2 text-heading text-ink">
+          <AppIcon
+            name="history"
+            :size="20"
+            class="text-primary"
+          />
+          Seu histórico
+        </h1>
       </template>
 
       <p
@@ -47,7 +54,14 @@ function topicLabel(topic: string | null): string {
           class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4 last:border-b-0 last:pb-0"
         >
           <div>
-            <p class="text-small font-semibold text-ink">{{ rodada.game_date }}</p>
+            <p class="flex items-center gap-1.5 text-small font-semibold text-ink">
+              <AppIcon
+                name="calendar_month"
+                :size="16"
+                class="text-ink/50"
+              />
+              {{ rodada.game_date }}
+            </p>
             <p class="text-small text-ink/70">{{ topicLabel(rodada.topic) }}</p>
           </div>
           <div class="text-right">

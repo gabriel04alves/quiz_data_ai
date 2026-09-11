@@ -105,8 +105,12 @@ async function startRound(): Promise<void> {
       <div class="mt-7 grid gap-2">
         <label
           for="topico"
-          class="text-small font-semibold text-ink"
+          class="flex items-center gap-1.5 text-small font-semibold text-ink"
         >
+          <AppIcon
+            name="topic"
+            :size="16"
+          />
           Tópico
         </label>
         <select
@@ -125,7 +129,12 @@ async function startRound(): Promise<void> {
         </select>
       </div>
 
-      <p class="mt-6 rounded-xl border border-border bg-surface-muted px-4 py-3.5 text-small text-ink/80">
+      <p class="mt-6 flex gap-2 rounded-xl border border-border bg-surface-muted px-4 py-3.5 text-small text-ink/80">
+        <AppIcon
+          name="info"
+          :size="18"
+          class="mt-0.5 shrink-0 text-ink/50"
+        />
         Se você sair no meio, a rodada é encerrada com os pontos que já fez e entra no ranking.
       </p>
 
@@ -133,10 +142,11 @@ async function startRound(): Promise<void> {
         v-if="errorMessage"
         class="mt-4 text-small font-semibold text-ink"
       >
-        <span
-          class="mr-1 text-incorrect"
-          aria-hidden="true"
-        >●</span>
+        <AppIcon
+          name="error"
+          :size="16"
+          class="mr-1 -mt-0.5 text-incorrect"
+        />
         {{ errorMessage }}
       </p>
 
@@ -145,6 +155,10 @@ async function startRound(): Promise<void> {
           size="lg"
           @click="startRound"
         >
+          <AppIcon
+            name="play_arrow"
+            :size="20"
+          />
           Começar
         </AppButton>
       </template>

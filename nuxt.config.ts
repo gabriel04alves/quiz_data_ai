@@ -5,6 +5,17 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/tailwindcss', 'nuxt-auth-utils'],
 
+  css: ['~/assets/css/icons.css'],
+
+  app: {
+    head: {
+      link: [
+        // Ícones do guia de marca (docs/brand: "iconografia via Google Fonts Material Symbols").
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..500,0..1,-25..0&display=swap' },
+      ],
+    },
+  },
+
   runtimeConfig: {
     // Banco: SQLite local (file:) em dev, Turso (libsql://) em produção — mesmo driver.
     tursoDatabaseUrl: process.env.TURSO_DATABASE_URL || 'file:./.data/dev.db',

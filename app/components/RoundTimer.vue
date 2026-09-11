@@ -53,15 +53,25 @@ const hasBonus = computed(() => bonusRatio.value > 0)
   <div class="grid gap-2">
     <div class="flex items-baseline justify-between gap-3">
       <span
-        class="text-heading tabular-nums text-ink"
+        class="flex items-center gap-1.5 text-heading tabular-nums text-ink"
         aria-live="off"
       >
+        <AppIcon
+          name="schedule"
+          :size="18"
+          class="text-ink/50"
+        />
         {{ seconds }}s
       </span>
       <span
-        class="text-small font-semibold tabular-nums"
+        class="flex items-center gap-1 text-small font-semibold tabular-nums"
         :class="hasBonus ? (bonusRatio > 0.3 ? 'text-primary' : 'text-accent') : 'text-ink/60'"
       >
+        <AppIcon
+          v-if="hasBonus"
+          name="bolt"
+          :size="16"
+        />
         {{ hasBonus ? `Bônus de agilidade: ${Math.round(bonusRatio * 100)}%` : 'Sem bônus de tempo — responda com calma' }}
       </span>
     </div>

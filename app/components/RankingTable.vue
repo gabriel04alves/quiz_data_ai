@@ -42,7 +42,13 @@ defineEmits<{ (e: 'load-more'): void }>()
                 class="inline-flex size-7 items-center justify-center rounded-full text-small font-bold"
                 :class="entry.posicao <= 3 ? 'bg-accent/20 text-primary-strong' : 'text-ink'"
               >
-                {{ entry.posicao }}
+                <AppIcon
+                  v-if="entry.posicao === 1"
+                  name="emoji_events"
+                  :size="16"
+                  :label="'1º lugar'"
+                />
+                <template v-else>{{ entry.posicao }}</template>
               </span>
             </td>
             <td
@@ -75,6 +81,10 @@ defineEmits<{ (e: 'load-more'): void }>()
         :is-loading="isLoadingMore"
         @click="$emit('load-more')"
       >
+        <AppIcon
+          name="expand_more"
+          :size="20"
+        />
         Carregar mais
       </AppButton>
     </div>

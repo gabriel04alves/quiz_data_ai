@@ -68,7 +68,19 @@ function optionClasses(index: number): string {
           @click="emit('select', index)"
         >
           <span class="text-label mt-0.5 text-primary">{{ letters[index] }}</span>
-          <span>{{ option }}</span>
+          <span class="flex-1">{{ option }}</span>
+          <AppIcon
+            v-if="feedback && index === feedback.correct_index"
+            name="check_circle"
+            :size="20"
+            class="mt-0.5 shrink-0 text-correct"
+          />
+          <AppIcon
+            v-else-if="feedback && index === chosenIndex"
+            name="cancel"
+            :size="20"
+            class="mt-0.5 shrink-0 text-incorrect"
+          />
         </button>
       </li>
     </ul>
@@ -81,6 +93,10 @@ function optionClasses(index: number): string {
         class="flex items-baseline gap-2 text-label uppercase"
         :class="feedback.is_correct ? 'text-correct' : 'text-incorrect'"
       >
+        <AppIcon
+          :name="feedback.is_correct ? 'check_circle' : 'cancel'"
+          :size="18"
+        />
         <span>{{ feedback.is_correct ? 'Acertou' : 'Errou' }}</span>
         <span class="text-title tabular-nums">{{ animatedPoints }}</span>
         <span>pontos</span>
@@ -93,13 +109,21 @@ function optionClasses(index: number): string {
           :is-loading="isReporting"
           @click="emit('report')"
         >
+          <AppIcon
+            name="flag"
+            :size="18"
+          />
           Reportar pergunta
         </AppButton>
         <p
           v-else
-          class="text-small font-semibold text-primary"
+          class="flex items-center gap-1.5 text-small font-semibold text-primary"
           role="status"
         >
+          <AppIcon
+            name="check_circle"
+            :size="16"
+          />
           Pergunta reportada
         </p>
       </div>

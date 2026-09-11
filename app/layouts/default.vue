@@ -31,6 +31,10 @@ async function signOut(): Promise<void> {
               size="md"
               @click="navigateTo('/historico')"
             >
+              <AppIcon
+                name="history"
+                :size="18"
+              />
               Histórico
             </AppButton>
             <AppButton
@@ -38,6 +42,10 @@ async function signOut(): Promise<void> {
               size="md"
               @click="signOut"
             >
+              <AppIcon
+                name="logout"
+                :size="18"
+              />
               Sair
             </AppButton>
           </div>

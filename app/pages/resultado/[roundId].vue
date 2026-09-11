@@ -32,10 +32,18 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
       </h1>
       <p class="mt-2 text-body text-ink/70">pontos</p>
       <div class="mt-5 flex flex-wrap gap-3">
-        <span class="inline-flex items-center rounded-full border border-border bg-surface-muted px-3.5 py-1.5 text-small font-semibold text-ink">
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-3.5 py-1.5 text-small font-semibold text-ink">
+          <AppIcon
+            name="check_circle"
+            :size="16"
+          />
           {{ data.correct_count }} de {{ data.total_positions }} acertos
         </span>
-        <span class="inline-flex items-center rounded-full border border-border bg-surface-muted px-3.5 py-1.5 text-small font-semibold text-ink">
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-3.5 py-1.5 text-small font-semibold text-ink">
+          <AppIcon
+            name="leaderboard"
+            :size="16"
+          />
           {{ data.ranking_position === null ? 'Ainda fora do ranking geral' : `${data.ranking_position}º lugar no ranking geral` }}
         </span>
       </div>
@@ -45,6 +53,10 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
             size="lg"
             @click="navigateTo('/jogar')"
           >
+            <AppIcon
+              name="replay"
+              :size="20"
+            />
             Jogar de novo
           </AppButton>
           <AppButton
@@ -52,6 +64,10 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
             size="lg"
             @click="navigateTo('/')"
           >
+            <AppIcon
+              name="leaderboard"
+              :size="20"
+            />
             Ver ranking
           </AppButton>
         </div>
@@ -67,6 +83,10 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
           variant="secondary"
           @click="navigateTo('/jogar')"
         >
+          <AppIcon
+            name="arrow_back"
+            :size="20"
+          />
           Voltar para /jogar
         </AppButton>
       </template>
@@ -74,7 +94,14 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
 
     <AppCard v-if="data">
       <template #header>
-        <h2 class="text-heading text-ink">Quebra por pergunta</h2>
+        <h2 class="flex items-center gap-2 text-heading text-ink">
+          <AppIcon
+            name="checklist"
+            :size="20"
+            class="text-primary"
+          />
+          Quebra por pergunta
+        </h2>
       </template>
 
       <ol class="grid gap-5">
@@ -90,9 +117,13 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
             <div class="flex items-center gap-3">
               <DifficultyBadge :difficulty="item.difficulty" />
               <span
-                class="text-small font-semibold"
+                class="flex items-center gap-1 text-small font-semibold"
                 :class="item.is_correct ? 'text-correct' : 'text-incorrect'"
               >
+                <AppIcon
+                  :name="item.is_correct ? 'check_circle' : 'cancel'"
+                  :size="16"
+                />
                 {{ item.points }} pts
               </span>
             </div>
