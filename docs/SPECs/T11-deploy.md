@@ -22,7 +22,7 @@ Aplicação no ar na Vercel, conectada ao Turso de produção, com o material re
 ## Aceite
 
 - [ ] Aplicação acessível na URL da Vercel
-- [ ] Entrada, rodada completa, trava diária, ranking e histórico funcionam em produção
+- [ ] Entrada, rodada completa, rodadas ilimitadas, ranking geral e histórico funcionam em produção
 - [ ] Chamada ao LLM conclui dentro do timeout de função da Vercel
 - [ ] Tela de preparação leva menos de 20s numa rodada real
 - [ ] Cada tópico tem no mínimo 7 chunks

@@ -6,7 +6,7 @@
 
 **Nome do projeto:** Gincana Data & AI
 **Tipo:** Aplicação web single-tenant, uso interno, sem requisitos corporativos formais
-**Objetivo:** Desafio diário de múltipla escolha para a equipe de Data & AI da Selbetti treinar conhecimentos técnicos. Cada jogador tem uma tentativa por dia, com perguntas geradas por IA na hora a partir do material de estudo em markdown, e disputa um ranking semanal.
+**Objetivo:** Desafio de múltipla escolha para a equipe de Data & AI da Selbetti treinar conhecimentos técnicos. Cada jogador pode jogar quantas rodadas quiser, a qualquer momento, com perguntas geradas por IA na hora a partir do material de estudo em markdown, e disputa um ranking geral acumulado.
 
 **Não-objetivos explícitos:**
 - Não é uma plataforma multi-tenant nem multi-empresa.
@@ -73,7 +73,7 @@ rounds
   id              text primary key (uuid)
   user_id         text not null references users(id)
   topic           text                -- null = todos os tópicos
-  game_date       text not null       -- 'YYYY-MM-DD' em America/Sao_Paulo, para a trava diária
+  game_date       text not null       -- 'YYYY-MM-DD' em America/Sao_Paulo, usado para histórico e contagem de dias jogados
   started_at      integer not null
   played_at       integer             -- null enquanto em andamento
   score           integer not null default 0
@@ -100,8 +100,9 @@ seen_chunks
 
 ### 3.2 Índices e constraints obrigatórios
 
-- `rounds(user_id, game_date)` — **UNIQUE**. É a trava de uma tentativa por dia, garantida no banco e não só na aplicação.
-- `rounds(played_at)` — cálculo do ranking semanal
+- `rounds(user_id, game_date)` — índice **não único**. Um usuário pode ter quantas rodadas quiser no mesmo dia; o índice só acelera histórico e contagem de dias jogados.
+- `rounds(user_id, played_at)` — histórico pessoal e agregação do ranking
+- `rounds(played_at)` — cálculo do ranking
 - `chunks(topic, times_used)` — sorteio ponderado
 - `seen_chunks(user_id, seen_at)` — filtro de anti-repetição
 - `questions(active)` — pool de fallback
@@ -236,9 +237,9 @@ Rejeita a rodada inteira e dispara o fallback (§5.6) se qualquer condição fal
 Se a chamada ao LLM falhar, estourar 20 segundos ou não passar na validação:
 
 1. Montar a rodada com perguntas válidas de `questions` já persistidas (rodadas anteriores), respeitando tópico, distribuição de dificuldade e `active = 1` tanto na pergunta quanto no chunk. Exigir 7 chunks distintos, maximizar a quantidade de chunks nunca vistos pelo usuário (histórico completo de `seen_chunks`) e sortear os empates. Buscar uma combinação completa 2/3/2; uma escolha inicial não pode impedir o uso de outra combinação válida.
-2. Se o banco não tiver perguntas suficientes, **não consumir a tentativa do dia**: reverter a criação da `round` e mostrar "não conseguimos preparar seu desafio agora, tente em alguns minutos".
+2. Se o banco não tiver perguntas suficientes, **reverter a criação da `round`** (sem deixar registro no histórico nem no ranking) e mostrar "não conseguimos preparar seu desafio agora, tente em alguns minutos".
 
-O jogador nunca perde a tentativa diária por erro de infraestrutura.
+O jogador nunca fica com uma rodada quebrada no histórico por erro de infraestrutura.
 
 ### 5.7 Moderação distribuída (substitui curadoria humana)
 
@@ -284,19 +285,19 @@ Exemplos de referência para teste:
 
 **Sem bônus de streak.** Com 7 perguntas e dificuldade crescente, streak concentraria prêmio em quem pegou uma leva favorável; o fator de velocidade já cria variação suficiente.
 
-### 6.3 Uma tentativa por dia
+### 6.3 Tentativas ilimitadas
 
-- Janela: dia-calendário em `America/Sao_Paulo`, reset à meia-noite. `game_date` no formato `YYYY-MM-DD`.
-- A trava é o índice UNIQUE `rounds(user_id, game_date)` — o banco garante, a aplicação apenas traduz o erro.
-- **A tentativa é consumida no início da rodada**, não no fim. Caso contrário o jogador abandona rodadas ruins e refaz.
-- Isso precisa estar **explícito na tela antes de começar**: "você tem uma tentativa hoje; se sair no meio, ela conta".
-- Rodada com `played_at` nulo e `started_at` há mais de 10 minutos é finalizada automaticamente com o score parcial, na próxima leitura relevante (lazy, sem cron).
-- Home mostra o estado do dia: "Você já jogou hoje — próxima tentativa em Xh Ymin".
+- **Não há limite de rodadas por usuário**, nem por dia nem por semana. Não existe trava diária, nem constraint de unicidade em `rounds`, nem contagem regressiva para a próxima tentativa.
+- `game_date` continua sendo gravado (dia-calendário em `America/Sao_Paulo`, formato `YYYY-MM-DD`) apenas como dado de histórico e para contar **dias jogados** no ranking — não é mais chave de trava.
+- **Uma rodada em andamento por vez.** Enquanto existir uma `rounds` do usuário com `played_at` nulo e `started_at` há menos de 10 minutos, `POST /api/rodada/iniciar` não cria outra: retorna a rodada existente e o jogador volta à pergunta atual. Isso impede abrir várias rodadas em paralelo e ficar com a melhor.
+- Rodada com `played_at` nulo e `started_at` há mais de 10 minutos é finalizada automaticamente com o score parcial, na próxima leitura relevante (lazy, sem cron). A partir daí o usuário pode iniciar outra.
+- Consequência aceita: abandonar uma rodada ruim e começar outra é permitido, mas a rodada abandonada é encerrada com o score parcial e **conta no ranking**. Isso precisa estar explícito em `/jogar` antes de começar: "se você sair no meio, a rodada é encerrada com os pontos que já fez e entra no ranking".
+- Home mostra o estado atual: pontos totais do usuário, posição no ranking e botão para jogar — sem mensagem de espera.
 
 ### 6.4 Fluxo de endpoints
 
 1. `POST /api/rodada/iniciar` com `{ topico? }`
-   - Verifica a trava diária (§6.3).
+   - Verifica se já existe rodada em andamento do usuário (§6.3); havendo, retorna ela em vez de criar outra.
    - Sorteia os 7 chunks (§5.2).
    - Chama o LLM (§5.3), valida (§5.5), com fallback (§5.6).
    - Persiste `questions`, cria `rounds` e as 7 linhas de `round_questions` com `position` e `time_limit_ms`.
@@ -314,7 +315,7 @@ Exemplos de referência para teste:
    - Retorna `{ is_correct, correct_index, explanation, points_earned, position, total_positions }`.
 
 4. `POST /api/rodada/:roundId/finalizar`
-   - Seta `played_at`, retorna score final, acertos e posição no ranking semanal.
+   - Seta `played_at`, retorna score final, acertos e posição no ranking geral.
 
 ### 6.5 Entrega das perguntas ao cliente
 
@@ -334,23 +335,25 @@ Isso basta para uma gincana interna. O sistema não deve ser apresentado como av
 
 ## 7. Ranking
 
-- **Semanal:** `SUM(score)` por usuário das rodadas com `played_at` na semana ISO corrente (segunda a domingo), top 10 desc.
-- Exibir ao lado do score o número de **dias jogados** — com uma tentativa diária, isso separa quem pontuou alto de quem apenas apareceu mais vezes.
-- Reset é filtro por data na query, não job de limpeza.
-- Retornar sempre a posição do usuário da sessão, mesmo fora do top 10.
-- Critério de desempate: maior score em menos dias jogados; persistindo, rodada mais antiga primeiro.
+Ranking **geral acumulado**, visível para todos os usuários logados.
 
----
+- **Agregação:** `SUM(score)` por usuário sobre todas as rodadas com `played_at` não nulo. Sem recorte de semana e sem reset.
+- **Escopo da listagem:** **todos** os usuários que já concluíram ao menos uma rodada, ordenados por pontos desc. Sem corte em top 10.
+  - Paginação em blocos de 50 (`?limit` / `?offset`, padrão 50). A UI carrega o primeiro bloco e oferece "carregar mais".
+- **Colunas:** posição, nome do usuário, pontos totais, **dias jogados** (`COUNT(DISTINCT game_date)`) e **rodadas jogadas** (`COUNT(*)`). Com tentativas ilimitadas, essas duas colunas separam quem pontua alto de quem apenas joga muito.
+- **Usuário logado:** a resposta sempre traz um bloco `me` com `{ posicao, pontos, dias_jogados, rodadas_jogadas, melhor_rodada }`, mesmo que ele não esteja na página carregada. Na UI esse bloco fica fixo no topo da tabela, e a linha correspondente é destacada quando aparece na lista.
+- **Usuário sem rodada concluída:** `me` vem com pontos 0 e `posicao: null`; a UI mostra "jogue sua primeira rodada para entrar no ranking".
+- **Desempate:** maior pontuação primeiro; empatando, menos dias jogados; persistindo, menos rodadas jogadas; persistindo, `played_at` da primeira rodada mais antigo. Determinístico e estável entre requisições.
 
 ## 8. Telas
 
 | Rota | Conteúdo |
 |---|---|
-| `/` | Sem sessão: form de e-mail. Com sessão: ranking semanal + estado da tentativa do dia |
-| `/jogar` | Seletor de tópico, aviso da tentativa única, botão "Começar" |
+| `/` | Sem sessão: form de e-mail. Com sessão: ranking geral (todos os usuários) + card com a pontuação e a posição do usuário logado + botão "Jogar" |
+| `/jogar` | Seletor de tópico, aviso de que sair no meio encerra a rodada com o score parcial, botão "Começar" |
 | `/jogar/[roundId]/preparando` | Tela de preparação durante a chamada ao LLM (§6.6) |
 | `/jogar/[roundId]` | Pergunta atual, indicador de dificuldade, timer, alternativas, feedback pós-resposta |
-| `/resultado/[roundId]` | Score final, acertos, quebra por pergunta, posição no ranking |
+| `/resultado/[roundId]` | Score final, acertos, quebra por pergunta, posição no ranking, botão "Jogar de novo" |
 | `/historico` | Rodadas anteriores do usuário: data, tópico, score, acertos |
 
 ## 8.1 Identidade visual
@@ -374,11 +377,12 @@ Casos não cobertos pelo guia (cor de acerto, erro, tempo esgotado, indicador de
 - Autenticação verificada (magic link, OAuth)
 - Painel de curadoria/admin
 - Embeddings / busca semântica sobre o material
-- Modo treino livre fora da tentativa diária
 - Modo duelo 1v1 ou multiplayer síncrono
 - Badges, conquistas, gamificação além de pontos e ranking
 - Formatos de pergunta além de múltipla escolha com uma correta
-- Ranking all-time ou por tópico
+- Ranking por tópico
+- Ranking com recorte semanal ou por período
+- Limite de tentativas por dia ou por período
 
 ---
 
@@ -403,7 +407,7 @@ Casos não cobertos pelo guia (cor de acerto, erro, tempo esgotado, indicador de
 - [ ] Chunks com `times_used` menor são sorteados com mais frequência ao longo de várias rodadas
 - [ ] Exatamente uma chamada ao LLM por rodada (verificável por log)
 - [ ] Resposta do LLM com pergunta malformada dispara o fallback, não quebra a rodada
-- [ ] Falha total de LLM e banco sem perguntas suficientes **não** consome a tentativa do dia
+- [ ] Falha total de LLM e banco sem perguntas suficientes **reverte** a rodada, sem deixar registro
 - [ ] Tópico com menos de 7 chunks retorna erro amigável
 
 **Jogo**
@@ -415,17 +419,21 @@ Casos não cobertos pelo guia (cor de acerto, erro, tempo esgotado, indicador de
 - [ ] Responder duas vezes a mesma pergunta é rejeitado
 - [ ] `roundId` de outro usuário retorna 403
 
-**Tentativa diária**
-- [ ] Segunda tentativa no mesmo dia é bloqueada, com tempo até a próxima
-- [ ] Abandonar a rodada e voltar não gera nova tentativa
-- [ ] Rodada abandonada há mais de 10 minutos é finalizada com score parcial
-- [ ] A trava sobrevive a duas requisições simultâneas (constraint UNIQUE, não só checagem na aplicação)
-- [ ] O aviso sobre a tentativa única aparece antes de começar
+**Tentativas ilimitadas**
+- [ ] Jogar duas ou mais rodadas no mesmo dia é permitido, sem bloqueio nem contagem regressiva
+- [ ] Não existe constraint UNIQUE em `rounds(user_id, game_date)`
+- [ ] Com rodada em andamento dentro de 10 minutos, `iniciar` retoma a rodada existente em vez de criar outra
+- [ ] Rodada abandonada há mais de 10 minutos é finalizada com score parcial e entra no ranking
+- [ ] O aviso sobre sair no meio aparece antes de começar
 
 **Ranking e histórico**
-- [ ] Ranking reflete apenas rodadas com `played_at` na semana corrente
-- [ ] Dias jogados exibido ao lado do score
-- [ ] Usuário fora do top 10 vê a própria posição
+- [ ] Ranking soma todas as rodadas com `played_at` não nulo, sem recorte de período
+- [ ] Todos os usuários com rodada concluída aparecem, com paginação, sem corte em top 10
+- [ ] Dias jogados e rodadas jogadas exibidos ao lado dos pontos
+- [ ] Usuário logado vê sempre a própria pontuação e posição, mesmo fora da página carregada
+- [ ] Usuário sem rodada concluída vê pontos 0 e a mensagem de primeira rodada
+- [ ] Rodada em andamento (sem `played_at`) não entra no ranking
+- [ ] Empates seguem o critério de desempate e a ordem é estável entre requisições
 - [ ] Histórico mostra apenas as rodadas do próprio usuário
 
 **Moderação**

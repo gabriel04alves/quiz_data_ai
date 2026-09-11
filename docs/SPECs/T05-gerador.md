@@ -5,7 +5,7 @@
 
 ## Objetivo
 
-Serviço que, dado um usuário e um tópico opcional, devolve 7 perguntas válidas com dificuldade crescente — com sorteio próprio, uma chamada ao LLM e fallback que nunca queima a tentativa do jogador.
+Serviço que, dado um usuário e um tópico opcional, devolve 7 perguntas válidas com dificuldade crescente — com sorteio próprio, uma chamada ao LLM e fallback que nunca deixa rodada quebrada para o jogador.
 
 **Esta é a tarefa de maior risco do projeto.** Implemente e teste fora da UI, via script de invocação direta, antes de integrar em T07.
 
@@ -28,7 +28,7 @@ Serviço que, dado um usuário e um tópico opcional, devolve 7 perguntas válid
 10. Validação de §5.5. Falha em qualquer pergunta → rodada inteira rejeitada, dispara fallback.
 11. Timeout de 20s na chamada.
 12. **Fallback (§5.6):** montar a rodada com perguntas válidas já persistidas em `questions`, respeitando tópico, distribuição de dificuldade e `active = 1` na pergunta e no chunk. Exigir 7 chunks distintos, maximizar chunks nunca vistos pelo usuário e sortear empates; procurar uma combinação completa, sem seleção gulosa que descarte soluções válidas.
-13. Se o fallback também não conseguir 7 perguntas, lançar erro tipado que sinaliza a T07/T08 para **reverter a rodada e não consumir a tentativa do dia**.
+13. Se o fallback também não conseguir 7 perguntas, lançar erro tipado que sinaliza a T07/T08 para **reverter a rodada criada**, sem deixar registro no histórico nem no ranking.
 14. Logar em cada execução: caminho usado (LLM ou fallback), latência, perguntas rejeitadas e motivo.
 
 ## Regras duras
@@ -48,7 +48,7 @@ Serviço que, dado um usuário e um tópico opcional, devolve 7 perguntas válid
 - [x] Resposta do LLM forjada com opção duplicada dispara o fallback
 - [x] Resposta do LLM forjada com 6 perguntas dispara o fallback
 - [x] Timeout simulado dispara o fallback
-- [x] Fallback sem perguntas suficientes lança o erro tipado de "não consumir tentativa"
+- [x] Fallback sem perguntas suficientes lança o erro tipado de "reverter rodada"
 - [x] Tópico com menos de 7 chunks retorna o erro de material insuficiente
 
 ## Verificação da implementação — 11/09/2026
@@ -58,5 +58,5 @@ Serviço que, dado um usuário e um tópico opcional, devolve 7 perguntas válid
 - Build Nuxt/Nitro concluído com acesso de leitura fora do sandbox (o rastreamento de diretórios falhava com `EPERM` no sandbox).
 - Uma chamada real ao `gemini-3.1-flash-lite` atingiu o timeout de 20 segundos. O fallback vazio retornou `PREPARATION_UNAVAILABLE`; nenhum histórico foi registrado. Consulta de metadados do modelo retornou HTTP 200 com a chave configurada. Não houve nova chamada de geração.
 - Pendente: obter um lote real dentro de 20 segundos e revisar sua aderência aos trechos. A verificação estrutural com respostas simuladas não comprova qualidade semântica do modelo.
-- A proteção completa da tentativa diária depende da integração transacional de T07/T08. A T05 devolve o erro tipado e não cria rodadas.
+- A reversão completa da rodada depende da integração transacional de T07/T08. A T05 devolve o erro tipado e não cria rodadas.
 - Verificação estática de tipos não executada: o projeto não tem o compilador TypeScript instalado. O build e os scripts transpilaram os arquivos executados; não foi adicionada dependência nova.

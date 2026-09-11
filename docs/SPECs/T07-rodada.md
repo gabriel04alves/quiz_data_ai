@@ -18,17 +18,17 @@ Rodada de 7 perguntas jogável de ponta a ponta, com dificuldade e tempo crescen
 
 ### Endpoints (§6.4)
 
-2. `POST /api/rodada/iniciar` — chama o serviço de T05, persiste `questions`, cria `rounds` e as 7 `round_questions` com `position` e `time_limit_ms` (25s/35s/45s conforme §6.1). Retorna `round_id` e **apenas a primeira pergunta**. A trava diária entra em T08.
+2. `POST /api/rodada/iniciar` — chama o serviço de T05, persiste `questions`, cria `rounds` e as 7 `round_questions` com `position` e `time_limit_ms` (25s/35s/45s conforme §6.1). Retorna `round_id` e **apenas a primeira pergunta**. O controle de rodada em andamento entra em T08.
 3. `GET /api/rodada/:roundId/pergunta` — devolve a próxima não respondida: `position`, `difficulty`, `stem`, `options`, `time_limit_ms`. Grava `served_at` na entrega, se nulo. **Nunca** `correct_index` nem `explanation`.
 4. `POST /api/rodada/:roundId/responder` — calcula `elapsed_server = now - served_at`, ignora `client_elapsed_ms` para pontuar, aplica tolerância de rede de 1500ms, pontua, atualiza `round_questions` e `rounds`. Retorna `{ is_correct, correct_index, explanation, points_earned, position, total_positions }`.
 5. `POST /api/rodada/:roundId/finalizar` — seta `played_at`, retorna score final e acertos.
 
 ### Telas
 
-6. `/jogar` — seletor de tópico (de `SELECT DISTINCT topic FROM chunks`, **nunca do filesystem**), aviso da tentativa única, botão "Começar".
+6. `/jogar` — seletor de tópico (de `SELECT DISTINCT topic FROM chunks`, **nunca do filesystem**), aviso de que sair no meio encerra a rodada com o score parcial, botão "Começar".
 7. `/jogar/[roundId]/preparando` — tela de preparação durante a chamada ao LLM (§6.6), com progresso, texto explicando o sorteio e timeout visual em 20s sincronizado com o fallback.
 8. `/jogar/[roundId]` — pergunta atual, indicador de dificuldade, timer visual, 4 alternativas, feedback imediato com explicação, avanço.
-9. `/resultado/[roundId]` — score final, acertos, quebra por pergunta, botão para o ranking.
+9. `/resultado/[roundId]` — score final, acertos, quebra por pergunta, botão para o ranking e botão "Jogar de novo".
 
 ## Regras duras
 
