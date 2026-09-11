@@ -27,6 +27,10 @@ export interface AnswerResponse {
   total_positions: number
 }
 
+export interface ReportQuestionResponse {
+  reported: true
+}
+
 export interface FinishRoundResponse {
   round_id: string
   score: number
@@ -52,5 +56,6 @@ export interface RoundResultResponse {
   score: number
   correct_count: number
   total_positions: number
+  ranking_position: number | null
   questions: RoundResultQuestion[]
 }

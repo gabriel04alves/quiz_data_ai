@@ -57,27 +57,30 @@ async function submitLogin(): Promise<void> {
   <section class="grid min-h-[60vh] place-items-center">
     <AuthState>
       <template #default="{ loggedIn: sessionLoggedIn, user: sessionUser }">
-        <AppCard
-          v-if="sessionLoggedIn"
-          tone="highlight"
-          class="w-full max-w-xl"
+        <div
+          v-if="sessionLoggedIn && sessionUser"
+          class="grid w-full max-w-3xl gap-6"
         >
-          <p class="text-label uppercase text-primary">Sessão ativa</p>
-          <h1 class="mt-3 text-title text-ink">
-            Olá, {{ sessionUser?.display_name }}.
-          </h1>
-          <p class="mt-4 text-body text-ink/70">
-            Seu acesso está pronto. Escolha um tópico e comece seu desafio.
-          </p>
-          <template #footer>
-            <AppButton
-              size="lg"
-              @click="navigateTo('/jogar')"
-            >
-              Jogar
-            </AppButton>
-          </template>
-        </AppCard>
+          <AppCard tone="highlight">
+            <p class="text-label uppercase text-primary">Sessão ativa</p>
+            <h1 class="mt-3 text-title text-ink">
+              Olá, {{ sessionUser.display_name }}.
+            </h1>
+            <p class="mt-4 text-body text-ink/70">
+              Seu acesso está pronto. Escolha um tópico e comece seu desafio.
+            </p>
+            <template #footer>
+              <AppButton
+                size="lg"
+                @click="navigateTo('/jogar')"
+              >
+                Jogar
+              </AppButton>
+            </template>
+          </AppCard>
+
+          <RankingOverview :user-id="sessionUser.id" />
+        </div>
 
         <AppCard
           v-else

@@ -1,6 +1,7 @@
 import { asc, eq } from 'drizzle-orm'
 import { db } from '../../../db'
 import { questions, roundQuestions } from '../../../db/schema'
+import { getUserRankingPosition } from '../../../services/ranking'
 import { TOTAL_POSITIONS, type RoundDifficulty, type RoundResultResponse } from '../../../../shared/types/round'
 
 export default defineEventHandler(async (event): Promise<RoundResultResponse> => {
@@ -18,12 +19,15 @@ export default defineEventHandler(async (event): Promise<RoundResultResponse> =>
     .where(eq(roundQuestions.roundId, round.id))
     .orderBy(asc(roundQuestions.position))
 
+  const rankingPosition = await getUserRankingPosition(db, round.userId)
+
   return {
     round_id: round.id,
     topic: round.topic,
     score: round.score,
     correct_count: round.correctCount,
     total_positions: TOTAL_POSITIONS,
+    ranking_position: rankingPosition,
     questions: rows.map(({ roundQuestion, question }) => ({
       position: roundQuestion.position,
       difficulty: question.difficulty as RoundDifficulty,

@@ -7,18 +7,23 @@ interface Props {
   feedback?: AnswerResponse | null
   chosenIndex?: number | null
   isSubmitting?: boolean
-}
+  isReporting?: boolean
+  isReported?: boolean
 
+}
 const props = withDefaults(defineProps<Props>(), {
   feedback: null,
   chosenIndex: null,
   isSubmitting: false,
-})
+  isReporting: false,
+  isReported: false,
 
+})
 const emit = defineEmits<{
   select: [index: number]
-}>()
+  report: []
 
+}>()
 const letters = ['A', 'B', 'C', 'D']
 const isAnswered = computed(() => props.feedback !== null)
 
@@ -78,8 +83,25 @@ function optionClasses(index: number): string {
         {{ feedback.is_correct ? 'Acertou' : 'Errou' }} · {{ feedback.points_earned }} pontos
       </p>
       <p class="mt-2 text-body text-ink/80">{{ feedback.explanation }}</p>
-    </div>
+      <div class="mt-4 flex items-center gap-3">
+        <AppButton
+          v-if="!isReported"
+          variant="ghost"
+          :is-loading="isReporting"
+          @click="emit('report')"
+        >
+          Reportar pergunta
+        </AppButton>
+        <p
+          v-else
+          class="text-small font-semibold text-primary"
+          role="status"
+        >
+          Pergunta reportada
+        </p>
+      </div>
 
+    </div>
     <template
       v-if="$slots.footer"
       #footer

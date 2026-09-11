@@ -91,6 +91,7 @@ export const roundQuestions = sqliteTable('round_questions', {
   isCorrect: integer('is_correct'),
   points: integer('points'),
   answeredAt: integer('answered_at'),
+  reportedAt: integer('reported_at'),
 })
 
 export const seenChunks = sqliteTable(

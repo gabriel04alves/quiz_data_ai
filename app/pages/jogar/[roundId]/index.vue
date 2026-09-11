@@ -2,6 +2,7 @@
 import { computed, onMounted, shallowRef } from 'vue'
 import type { AnswerResponse, FinishRoundResponse, ServedQuestion } from '#shared/types/round'
 
+import type { ReportQuestionResponse } from '#shared/types/round'
 const route = useRoute()
 const roundId = computed(() => String(route.params.roundId))
 
@@ -12,6 +13,8 @@ const isSubmitting = shallowRef(false)
 const isLoading = shallowRef(true)
 const errorMessage = shallowRef<string | null>(null)
 
+const isReporting = shallowRef(false)
+const isReported = shallowRef(false)
 const bootstrap = useRoundBootstrap()
 
 const isLastQuestion = computed(() =>
@@ -72,7 +75,27 @@ async function answer(index: number): Promise<void> {
 async function goNext(): Promise<void> {
   feedback.value = null
   chosenIndex.value = null
+  isReporting.value = false
+  isReported.value = false
   await loadQuestion()
+}
+
+async function reportQuestion(): Promise<void> {
+  if (!question.value || !feedback.value || isReporting.value || isReported.value) return
+
+  isReporting.value = true
+  errorMessage.value = null
+
+  try {
+    await $fetch<ReportQuestionResponse>(`/api/perguntas/${question.value.question_id}/reportar`, {
+      method: 'POST',
+    })
+    isReported.value = true
+  } catch (error: unknown) {
+    errorMessage.value = apiErrorMessage(error, 'n\u00e3o foi poss\u00edvel reportar a pergunta')
+  } finally {
+    isReporting.value = false
+  }
 }
 
 async function finishRound(): Promise<void> {
@@ -97,6 +120,9 @@ async function finishRound(): Promise<void> {
       :chosen-index="chosenIndex"
       :is-submitting="isSubmitting"
       @select="answer"
+      :is-reporting="isReporting"
+      :is-reported="isReported"
+      @report="reportQuestion"
     >
       <template #footer>
         <div class="grid gap-4">

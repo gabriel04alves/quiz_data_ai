@@ -26,13 +26,23 @@ async function signOut(): Promise<void> {
           Gincana Data &amp; AI
         </NuxtLink>
         <AuthState v-slot="{ loggedIn }">
-          <AppButton
+          <div
             v-if="loggedIn"
-            variant="ghost"
-            @click="signOut"
+            class="flex items-center gap-2"
           >
-            Sair
-          </AppButton>
+            <AppButton
+              variant="ghost"
+              @click="navigateTo('/historico')"
+            >
+              Histórico
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              @click="signOut"
+            >
+              Sair
+            </AppButton>
+          </div>
         </AuthState>
       </div>
     </header>

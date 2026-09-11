@@ -21,6 +21,9 @@ const letters = ['A', 'B', 'C', 'D']
       <p class="mt-2 text-body text-ink/70">
         pontos · {{ data.correct_count }} de {{ data.total_positions }} acertos
       </p>
+      <p class="mt-3 text-small font-semibold text-ink">
+        {{ data.ranking_position === null ? 'Ainda fora do ranking geral' : `${data.ranking_position}º lugar no ranking geral` }}
+      </p>
       <template #footer>
         <div class="flex flex-wrap gap-3">
           <AppButton

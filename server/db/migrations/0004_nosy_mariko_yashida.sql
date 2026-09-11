@@ -1,0 +1,1 @@
+ALTER TABLE `round_questions` ADD `reported_at` integer;
