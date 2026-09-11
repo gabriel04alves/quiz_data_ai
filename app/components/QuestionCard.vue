@@ -26,6 +26,7 @@ const emit = defineEmits<{
 }>()
 const letters = ['A', 'B', 'C', 'D']
 const isAnswered = computed(() => props.feedback !== null)
+const animatedPoints = useCountUp(() => props.feedback?.points_earned ?? 0)
 
 function optionClasses(index: number): string {
   if (!props.feedback) {
@@ -77,10 +78,12 @@ function optionClasses(index: number): string {
       class="mt-6 rounded-xl border border-border bg-surface-muted px-4 py-4"
     >
       <p
-        class="text-label uppercase"
+        class="flex items-baseline gap-2 text-label uppercase"
         :class="feedback.is_correct ? 'text-correct' : 'text-incorrect'"
       >
-        {{ feedback.is_correct ? 'Acertou' : 'Errou' }} · {{ feedback.points_earned }} pontos
+        <span>{{ feedback.is_correct ? 'Acertou' : 'Errou' }}</span>
+        <span class="text-title tabular-nums">{{ animatedPoints }}</span>
+        <span>pontos</span>
       </p>
       <p class="mt-2 text-body text-ink/80">{{ feedback.explanation }}</p>
       <div class="mt-4 flex items-center gap-3">

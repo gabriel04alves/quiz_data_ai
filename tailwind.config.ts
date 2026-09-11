@@ -43,6 +43,23 @@ export default {
         small: ['0.875rem', { lineHeight: '1.5' }],
         label: ['0.75rem', { lineHeight: '1.25', letterSpacing: '0.08em', fontWeight: '700' }],
       },
+      keyframes: {
+        // Preenchimento contínuo da barra de "preparando rodada" (T12) — puramente decorativo,
+        // o progresso real é comunicado pelo texto ao lado.
+        'arcade-loading': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(250%)' },
+        },
+        // Contorno pulsante para destacar a linha do próprio jogador no ranking/placar.
+        'arcade-pop': {
+          '0%': { transform: 'scale(0.94)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+      },
+      animation: {
+        'arcade-loading': 'arcade-loading 1.1s ease-in-out infinite',
+        'arcade-pop': 'arcade-pop 0.25s ease-out',
+      },
     },
   },
   plugins: [],

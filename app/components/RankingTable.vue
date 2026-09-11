@@ -37,9 +37,21 @@ defineEmits<{ (e: 'load-more'): void }>()
             class="border-b border-border text-body last:border-b-0"
             :class="entry.user_id === highlightUserId ? 'bg-primary/10' : undefined"
           >
-            <td class="px-4 py-3 font-semibold text-ink sm:px-6">{{ entry.posicao }}</td>
-            <td class="px-4 py-3 text-ink sm:px-6">{{ entry.display_name }}</td>
-            <td class="px-4 py-3 text-right font-semibold text-primary-strong sm:px-6">{{ entry.pontos }}</td>
+            <td class="px-4 py-3 sm:px-6">
+              <span
+                class="inline-flex size-7 items-center justify-center rounded-full text-small font-bold"
+                :class="entry.posicao <= 3 ? 'bg-accent/20 text-primary-strong' : 'text-ink'"
+              >
+                {{ entry.posicao }}
+              </span>
+            </td>
+            <td
+              class="px-4 py-3 sm:px-6"
+              :class="entry.user_id === highlightUserId ? 'font-semibold text-ink' : 'text-ink'"
+            >
+              {{ entry.display_name }}
+            </td>
+            <td class="px-4 py-3 text-right font-semibold tabular-nums text-primary-strong sm:px-6">{{ entry.pontos }}</td>
             <td class="px-4 py-3 text-right text-ink/70 sm:px-6">{{ entry.dias_jogados }}</td>
             <td class="px-4 py-3 text-right text-ink/70 sm:px-6">{{ entry.rodadas_jogadas }}</td>
           </tr>

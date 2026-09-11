@@ -8,6 +8,7 @@ const roundId = computed(() => String(route.params.roundId))
 const { data, error } = await useFetch<RoundResultResponse>(() => `/api/rodada/${roundId.value}/resultado`)
 
 const letters = ['A', 'B', 'C', 'D']
+const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 1000 })
 </script>
 
 <template>
@@ -17,13 +18,21 @@ const letters = ['A', 'B', 'C', 'D']
       tone="highlight"
     >
       <p class="text-label uppercase text-primary">Rodada encerrada</p>
-      <h1 class="mt-3 text-display text-primary-strong">{{ data.score }}</h1>
-      <p class="mt-2 text-body text-ink/70">
-        pontos · {{ data.correct_count }} de {{ data.total_positions }} acertos
-      </p>
-      <p class="mt-3 text-small font-semibold text-ink">
-        {{ data.ranking_position === null ? 'Ainda fora do ranking geral' : `${data.ranking_position}º lugar no ranking geral` }}
-      </p>
+      <h1
+        class="mt-3 text-display tabular-nums text-primary-strong animate-arcade-pop motion-reduce:animate-none"
+        aria-label="Pontuação final"
+      >
+        {{ animatedScore }}
+      </h1>
+      <p class="mt-2 text-body text-ink/70">pontos</p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <span class="inline-flex items-center rounded-full border border-border bg-surface-muted px-3.5 py-1.5 text-small font-semibold text-ink">
+          {{ data.correct_count }} de {{ data.total_positions }} acertos
+        </span>
+        <span class="inline-flex items-center rounded-full border border-border bg-surface-muted px-3.5 py-1.5 text-small font-semibold text-ink">
+          {{ data.ranking_position === null ? 'Ainda fora do ranking geral' : `${data.ranking_position}º lugar no ranking geral` }}
+        </span>
+      </div>
       <template #footer>
         <div class="flex flex-wrap gap-3">
           <AppButton

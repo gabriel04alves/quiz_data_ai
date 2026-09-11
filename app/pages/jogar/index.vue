@@ -71,11 +71,13 @@ async function startRound(): Promise<void> {
         Está demorando mais que o normal — já estamos montando sua rodada com perguntas do acervo.
       </p>
       <div
-        class="mt-6 h-2 overflow-hidden rounded-full bg-surface"
+        class="relative mt-6 h-2.5 overflow-hidden rounded-full bg-surface"
         role="progressbar"
         aria-label="Preparando sua rodada"
       >
-        <div class="h-full w-1/3 animate-pulse rounded-full bg-primary" />
+        <div
+          class="absolute inset-y-0 w-2/5 rounded-full bg-gradient-to-r from-primary to-accent motion-reduce:animate-none motion-reduce:w-full motion-reduce:from-primary motion-reduce:to-primary animate-arcade-loading"
+        />
       </div>
     </AppCard>
 

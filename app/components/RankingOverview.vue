@@ -21,6 +21,7 @@ const loadMoreError = shallowRef<string | null>(null)
 
 const me = computed(() => data.value?.me)
 const hasMore = computed(() => entries.value.length < total.value)
+const animatedPoints = useCountUp(() => me.value?.pontos ?? 0)
 
 async function loadMore(): Promise<void> {
   loadMoreError.value = null
@@ -44,9 +45,18 @@ async function loadMore(): Promise<void> {
   <div class="grid gap-6">
     <AppCard v-if="me">
       <p class="text-label uppercase text-primary">Sua posição</p>
-      <h2 class="mt-3 text-title text-ink">
-        {{ me.posicao === null ? 'Fora do ranking' : `${me.posicao}º lugar` }}
-      </h2>
+      <div class="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h2 class="text-title text-ink">
+          {{ me.posicao === null ? 'Fora do ranking' : `${me.posicao}º lugar` }}
+        </h2>
+        <p
+          v-if="me.posicao !== null"
+          class="text-heading tabular-nums text-primary-strong"
+          aria-label="Pontuação total"
+        >
+          {{ animatedPoints }} pts
+        </p>
+      </div>
       <p
         v-if="me.posicao === null"
         class="mt-2 text-body text-ink/70"
@@ -57,7 +67,7 @@ async function loadMore(): Promise<void> {
         v-else
         class="mt-2 text-body text-ink/70"
       >
-        {{ me.pontos }} pontos · {{ me.dias_jogados }} dias jogados · {{ me.rodadas_jogadas }} rodadas jogadas
+        {{ me.dias_jogados }} dias jogados · {{ me.rodadas_jogadas }} rodadas jogadas
       </p>
     </AppCard>
 

@@ -1,7 +1,7 @@
 import { eq, isNotNull, sql } from 'drizzle-orm'
 import { rounds, users } from '../db/schema'
 import type { QuestionDatabase } from './question-types'
-import type { RankingEntry, RankingMe } from '../../shared/types/ranking'
+import type { RankingEntry, RankingMe, RankingResponse } from '../../shared/types/ranking'
 
 interface UserTotals {
   userId: string
@@ -45,13 +45,7 @@ async function loadRankedTotals(db: QuestionDatabase): Promise<UserTotals[]> {
   return rows.slice().sort(compareTotals)
 }
 
-export interface RankingResult {
-  entries: RankingEntry[]
-  total: number
-  me: RankingMe
-}
-
-export async function getRanking(db: QuestionDatabase, userId: string, limit: number, offset: number): Promise<RankingResult> {
+export async function getRanking(db: QuestionDatabase, userId: string, limit: number, offset: number): Promise<RankingResponse> {
   const totals = await loadRankedTotals(db)
 
   const entries: RankingEntry[] = totals.slice(offset, offset + limit).map((entry, index) => ({
@@ -74,7 +68,7 @@ export async function getRanking(db: QuestionDatabase, userId: string, limit: nu
         melhor_rodada: totals[meIndex]!.melhorRodada,
       }
 
-  return { entries, total: totals.length, me }
+  return { ranking: entries, total: totals.length, me }
 }
 
 // Usado pela tela de resultado (SPEC.md §8), que não precisa da página inteira.

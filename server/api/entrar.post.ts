@@ -6,12 +6,7 @@ import { users } from '../db/schema'
 const corporateEmailPattern = /^[a-z0-9._%+-]+@selbetti\.com\.br$/
 
 function deriveDisplayName(email: string): string {
-  const localPart = email.split('@')[0]!
-
-  return localPart
-    .split('.')
-    .map(part => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join(' ')
+  return email.split('@')[0]!
 }
 
 export default defineEventHandler(async event => {

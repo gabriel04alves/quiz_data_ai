@@ -59,15 +59,16 @@ const hasBonus = computed(() => bonusRatio.value > 0)
         {{ seconds }}s
       </span>
       <span
-        class="text-small"
-        :class="hasBonus ? 'text-primary' : 'text-ink/60'"
+        class="text-small font-semibold tabular-nums"
+        :class="hasBonus ? (bonusRatio > 0.3 ? 'text-primary' : 'text-accent') : 'text-ink/60'"
       >
         {{ hasBonus ? `Bônus de agilidade: ${Math.round(bonusRatio * 100)}%` : 'Sem bônus de tempo — responda com calma' }}
       </span>
     </div>
     <div class="h-2 overflow-hidden rounded-full bg-surface-muted">
       <div
-        class="h-full rounded-full bg-primary transition-[width] duration-150 ease-linear"
+        class="h-full rounded-full transition-[width,background-color] duration-150 ease-linear"
+        :class="bonusRatio > 0.3 ? 'bg-primary' : 'bg-accent'"
         :style="{ width: `${bonusRatio * 100}%` }"
       />
     </div>
