@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     tursoDatabaseUrl: process.env.TURSO_DATABASE_URL || 'file:./.data/dev.db',
     tursoAuthToken: process.env.TURSO_AUTH_TOKEN || '',
     llmApiKey: process.env.LLM_API_KEY || '',
+    llmModel: process.env.LLM_MODEL || 'gemini-3.1-flash-lite',
     gameTimezone: process.env.GAME_TIMEZONE || 'America/Sao_Paulo',
     // nuxt-auth-utils usa runtimeConfig.session.password para assinar o cookie de sessão.
     session: {

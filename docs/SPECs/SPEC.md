@@ -26,7 +26,7 @@
 | Banco | Turso (libSQL) | Free tier em produção; SQLite local (`file:`) em desenvolvimento, mesmo driver libSQL |
 | ORM | Drizzle ORM | Driver `@libsql/client` |
 | Sessão | `nuxt-auth-utils` | Cookie httpOnly assinado, sem provider externo |
-| LLM | Gemini 2.0 Flash (ou Claude Haiku) | Chamado uma única vez por rodada, na tela de preparação |
+| LLM | Google AI Studio — `gemini-3.1-flash-lite` | Chamado uma única vez por rodada, na tela de preparação; modelo configurável por `LLM_MODEL` |
 | Deploy | Vercel (free tier) | Alternativas compatíveis: Netlify, Cloudflare Pages |
 | Gerenciador de pacotes | npm | — |
 
@@ -176,12 +176,12 @@ O sorteio é responsabilidade do código, **não do modelo**. Modelo tende a gra
 
 Ao iniciar uma rodada, selecionar 7 chunks:
 
-1. Universo: todos os chunks (ou os do tópico escolhido).
+1. Universo: todos os chunks ativos (ou os do tópico escolhido). `chunks.active = 0` representa material removido pela indexação.
 2. Excluir chunks presentes em `seen_chunks` do usuário nos últimos 7 dias.
 3. Se após a exclusão restarem menos de 7, relaxar a janela para 3 dias; se ainda faltar, ignorar o filtro (e logar).
 4. Sortear 7 distintos, com peso inversamente proporcional a `times_used` — espalha o uso do material.
 5. Atribuir dificuldade por posição: posições 1–2 `facil`, 3–5 `medio`, 6–7 `dificil`.
-6. Incrementar `times_used` e gravar em `seen_chunks`.
+6. Após a preparação bem-sucedida, incrementar `times_used` e gravar em `seen_chunks` somente os 7 chunks efetivamente usados. No fallback, registrar os chunks das perguntas reaproveitadas, não os do sorteio inicial. Fazer isso na transação que confirma a rodada; falha total não altera o histórico. Não manter transação aberta durante a chamada ao LLM.
 
 Se o universo tiver menos de 7 chunks, retornar erro amigável: "material insuficiente para uma rodada, escolha outro tópico".
 
@@ -235,7 +235,7 @@ Rejeita a rodada inteira e dispara o fallback (§5.6) se qualquer condição fal
 
 Se a chamada ao LLM falhar, estourar 20 segundos ou não passar na validação:
 
-1. Montar a rodada com perguntas de `questions` já persistidas (rodadas anteriores), respeitando tópico, distribuição de dificuldade e `active = 1`, preferindo perguntas cujo `chunk_id` não esteja em `seen_chunks` do usuário.
+1. Montar a rodada com perguntas válidas de `questions` já persistidas (rodadas anteriores), respeitando tópico, distribuição de dificuldade e `active = 1` tanto na pergunta quanto no chunk. Exigir 7 chunks distintos, maximizar a quantidade de chunks nunca vistos pelo usuário (histórico completo de `seen_chunks`) e sortear os empates. Buscar uma combinação completa 2/3/2; uma escolha inicial não pode impedir o uso de outra combinação válida.
 2. Se o banco não tiver perguntas suficientes, **não consumir a tentativa do dia**: reverter a criação da `round` e mostrar "não conseguimos preparar seu desafio agora, tente em alguns minutos".
 
 O jogador nunca perde a tentativa diária por erro de infraestrutura.
@@ -498,6 +498,7 @@ scripts/
 TURSO_DATABASE_URL=
 TURSO_AUTH_TOKEN=
 LLM_API_KEY=
+LLM_MODEL=gemini-3.1-flash-lite
 SESSION_SECRET=
 GAME_TIMEZONE=America/Sao_Paulo
 ```
