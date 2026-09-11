@@ -1,0 +1,23 @@
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: '2025-01-01',
+  devtools: { enabled: true },
+
+  modules: ['@nuxtjs/tailwindcss', 'nuxt-auth-utils'],
+
+  runtimeConfig: {
+    // Banco: SQLite local (file:) em dev, Turso (libsql://) em produção — mesmo driver.
+    tursoDatabaseUrl: process.env.TURSO_DATABASE_URL || 'file:./.data/dev.db',
+    tursoAuthToken: process.env.TURSO_AUTH_TOKEN || '',
+    llmApiKey: process.env.LLM_API_KEY || '',
+    gameTimezone: process.env.GAME_TIMEZONE || 'America/Sao_Paulo',
+    // nuxt-auth-utils usa runtimeConfig.session.password para assinar o cookie de sessão.
+    session: {
+      password: process.env.SESSION_SECRET || '',
+    },
+  },
+
+  typescript: {
+    strict: true,
+  },
+})

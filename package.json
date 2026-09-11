@@ -1,0 +1,29 @@
+{
+  "name": "gincana-data-ai",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "index:content": "tsx --env-file-if-exists=.env scripts/index-content.ts",
+    "db:check": "tsx --env-file-if-exists=.env scripts/db-check.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "drizzle-orm": "^0.45.2",
+    "nuxt": "^4.5.2",
+    "nuxt-auth-utils": "^0.5.30",
+    "vue": "^3.5.22",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@types/node": "^22.10.5",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.13"
+  }
+}
