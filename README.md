@@ -5,7 +5,7 @@ perguntas de múltipla escolha, geradas na hora por IA a partir do material de e
 e disputa um ranking geral acumulado. Aplicação web single-tenant, uso interno, sem autenticação
 verificada — ver `docs/SPECs/SPEC.md` para a especificação completa do produto.
 
-## Stack
+## Stack -
 
 | Camada | Tecnologia |
 |---|---|
