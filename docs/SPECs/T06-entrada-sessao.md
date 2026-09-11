@@ -22,7 +22,7 @@ Usuário informa o e-mail corporativo, é registrado e permanece logado por cook
 
 ## Regras duras
 
-- Sem envio de e-mail, sem código de confirmação, sem OAuth (`CLAUDE.md` regra 6).
+- Sem envio de e-mail, sem código de confirmação, sem OAuth (`AGENTS.md` regra 6).
 - Validação sempre no servidor; no cliente é só UX.
 
 ## Aceite

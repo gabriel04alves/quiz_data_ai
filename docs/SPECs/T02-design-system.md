@@ -1,7 +1,7 @@
 # T02 — Design system a partir do brand
 
 **Depende de:** T01
-**Referência:** `SPEC.md` §8.1, `CLAUDE.md` regra 7
+**Referência:** `SPEC.md` §8.1, `AGENTS.md` regra 7
 
 ## Objetivo
 

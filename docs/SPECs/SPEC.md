@@ -1,7 +1,5 @@
 # SPEC — Gincana de Conhecimento Data & AI
 
-> Documento de especificação para desenvolvimento orientado por spec (SDD) com agente de código (Claude Code). Cada seção é autocontida e pode ser referenciada isoladamente durante a implementação.
-
 ---
 
 ## 1. Visão geral

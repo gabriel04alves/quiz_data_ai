@@ -33,8 +33,8 @@ Rodada de 7 perguntas jogável de ponta a ponta, com dificuldade e tempo crescen
 ## Regras duras
 
 - Uma pergunta por vez ao cliente (§6.5). Enviar o lote inteiro é bug de segurança, não otimização.
-- `correct_index` nunca antes da resposta (`CLAUDE.md` regra 2).
-- Timer autoritativo é o servidor (`CLAUDE.md` regra 3).
+- `correct_index` nunca antes da resposta (`AGENTS.md` regra 2).
+- Timer autoritativo é o servidor (`AGENTS.md` regra 3).
 - Todos os endpoints validam que o `roundId` pertence ao usuário da sessão.
 - Reenvio de resposta para pergunta já respondida é rejeitado.
 

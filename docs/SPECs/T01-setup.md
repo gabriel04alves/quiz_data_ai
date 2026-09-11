@@ -18,7 +18,7 @@ Projeto Nuxt inicializado, com Tailwind, Drizzle e conexão ao Turso funcionando
 7. Criar `.env.example` com todas as variáveis de `SPEC.md` §12, e `.gitignore` cobrindo `.env`.
 8. Criar a árvore de pastas vazia de `SPEC.md` §11 (com `.gitkeep` onde necessário).
 9. Criar `content/` com duas subpastas de exemplo e um `.md` curto em cada, seguindo `SPEC.md` §5.0.
-10. Adicionar os scripts do `CLAUDE.md` ao `package.json` (`dev`, `build`, `index:content`, `db:generate`, `db:push`).
+10. Adicionar os scripts do `AGENTS.md` ao `package.json` (`dev`, `build`, `index:content`, `db:generate`, `db:push`).
 
 ## Fora do escopo
 

@@ -4,10 +4,10 @@ Decomposição da `SPEC.md` em tarefas sequenciais para desenvolvimento orientad
 
 ## Como usar
 
-Cada arquivo é uma unidade de trabalho autocontida. No Claude Code, abra uma sessão por tarefa:
+Cada arquivo é uma unidade de trabalho autocontida. No agente, abra uma sessão por tarefa:
 
 ```
-Leia CLAUDE.md, SPEC.md e tasks/T01-setup.md. Execute a tarefa T01.
+Leia AGENTS.md, SPEC.md e tasks/T01-setup.md. Execute a tarefa T01.
 ```
 
 **Regras de execução:**

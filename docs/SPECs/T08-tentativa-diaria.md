@@ -20,7 +20,7 @@ Cada usuário joga uma vez por dia, com a tentativa consumida no início — e s
 
 ## Regras duras
 
-- A trava é constraint de banco (`CLAUDE.md` regra 3b).
+- A trava é constraint de banco (`AGENTS.md` regra 3b).
 - Falha de LLM ou de infraestrutura nunca consome a tentativa.
 
 ## Aceite

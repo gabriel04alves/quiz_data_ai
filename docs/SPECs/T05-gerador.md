@@ -33,8 +33,8 @@ Serviço que, dado um usuário e um tópico opcional, devolve 7 perguntas válid
 
 ## Regras duras
 
-- Exatamente uma chamada ao LLM por execução (`CLAUDE.md` regra 1).
-- O sorteio é do código; o modelo só redige (`CLAUDE.md` regra 1b).
+- Exatamente uma chamada ao LLM por execução (`AGENTS.md` regra 1).
+- O sorteio é do código; o modelo só redige (`AGENTS.md` regra 1b).
 - Nenhuma dependência de UI neste serviço — deve ser invocável por script.
 
 ## Aceite

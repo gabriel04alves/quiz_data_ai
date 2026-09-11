@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 Instruções operacionais para agentes de código trabalhando neste repositório.
 
