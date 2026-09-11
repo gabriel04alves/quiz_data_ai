@@ -13,7 +13,12 @@ function topicLabel(topic: string | null): string {
 
 <template>
   <section class="mx-auto grid w-full max-w-3xl gap-6">
-    <AppCard>
+    <AppCard class="relative overflow-hidden">
+      <AppPixelCluster
+        class="absolute right-6 top-6"
+        tone="accent"
+        :cell="4"
+      />
       <template #header>
         <h1 class="text-heading text-ink">Seu histórico</h1>
       </template>

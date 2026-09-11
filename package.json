@@ -10,6 +10,7 @@
     "index:content": "tsx --env-file-if-exists=.env scripts/index-content.ts",
     "questions:check": "tsx --env-file-if-exists=.env scripts/check-questions.ts",
     "db:check": "tsx --env-file-if-exists=.env scripts/db-check.ts",
+    "db:backfill-names": "tsx --env-file-if-exists=.env scripts/backfill-display-names.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push"
   },

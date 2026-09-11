@@ -56,8 +56,13 @@ async function startRound(): Promise<void> {
     <AppCard
       v-if="isPreparing"
       tone="highlight"
-      class="w-full max-w-xl"
+      class="relative w-full max-w-xl overflow-hidden"
     >
+      <AppPixelCluster
+        class="absolute right-6 top-6"
+        tone="primary"
+        :cell="4"
+      />
       <p class="text-label uppercase text-primary">Preparando</p>
       <h1 class="mt-3 text-title text-ink">Sorteando seus trechos.</h1>
       <p class="mt-4 text-body text-ink/70">
@@ -83,8 +88,13 @@ async function startRound(): Promise<void> {
 
     <AppCard
       v-else
-      class="w-full max-w-xl"
+      class="relative w-full max-w-xl overflow-hidden"
     >
+      <AppPixelCluster
+        class="absolute right-6 top-6"
+        tone="accent"
+        :cell="4"
+      />
       <p class="text-label uppercase text-primary">Nova rodada</p>
       <h1 class="mt-3 text-title text-ink">Sete perguntas, um tópico.</h1>
       <p class="mt-4 text-body text-ink/70">

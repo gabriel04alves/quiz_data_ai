@@ -16,7 +16,13 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
     <AppCard
       v-if="data"
       tone="highlight"
+      class="relative overflow-hidden"
     >
+      <AppPixelCluster
+        class="absolute right-6 top-6"
+        tone="primary"
+        :cell="4"
+      />
       <p class="text-label uppercase text-primary">Rodada encerrada</p>
       <h1
         class="mt-3 text-display tabular-nums text-primary-strong animate-arcade-pop motion-reduce:animate-none"
