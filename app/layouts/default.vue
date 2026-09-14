@@ -9,7 +9,12 @@ async function signOut(): Promise<void> {
 
 <template>
   <div class="min-h-screen bg-surface-muted font-brand text-ink antialiased">
-    <header class="relative border-b border-border bg-surface">
+    <header
+      class="relative border-b border-border bg-surface"
+      data-aos="fade-down"
+      data-aos-duration="350"
+      data-aos-offset="0"
+    >
       <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
         <NuxtLink
           to="/"

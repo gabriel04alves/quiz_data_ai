@@ -44,7 +44,6 @@ async function submitLogin(): Promise<void> {
       body: { email: email.value },
     })
     await fetch()
-    await navigateTo('/jogar')
   } catch (error: unknown) {
     errorMessage.value = getErrorMessage(error)
   } finally {
@@ -61,7 +60,10 @@ async function submitLogin(): Promise<void> {
           v-if="sessionLoggedIn && sessionUser"
           class="grid w-full max-w-5xl gap-8"
         >
-          <AppCard tone="highlight">
+          <AppCard
+            tone="highlight"
+            data-aos="fade-up"
+          >
             <p class="text-label uppercase text-primary">Sessão ativa</p>
             <h1 class="mt-3 text-title text-ink">
               Olá, {{ sessionUser.display_name }}.
@@ -84,11 +86,21 @@ async function submitLogin(): Promise<void> {
           </AppCard>
 
           <div class="grid gap-6 lg:grid-cols-[1fr_300px]">
-            <RankingOverview :user-id="sessionUser.id" />
-            <GameRulesCard />
+            <RankingOverview
+              :user-id="sessionUser.id"
+              data-aos="fade-up"
+              data-aos-delay="50"
+            />
+            <GameRulesCard
+              data-aos="fade-up"
+              data-aos-delay="100"
+            />
           </div>
 
-          <ScoringPreview />
+          <ScoringPreview
+            data-aos="fade-up"
+            data-aos-delay="150"
+          />
         </div>
 
         <div
@@ -101,7 +113,10 @@ async function submitLogin(): Promise<void> {
           />
 
           <div class="grid gap-10">
-            <section class="relative overflow-hidden rounded-2xl border border-border bg-surface px-6 py-10 text-center sm:px-10 sm:py-14">
+            <section
+              class="relative overflow-hidden rounded-2xl border border-border bg-surface px-6 py-10 text-center sm:px-10 sm:py-14"
+              data-aos="fade-up"
+            >
               <div
                 class="pointer-events-none absolute -left-10 -top-10 size-32 rounded-full bg-primary/10"
                 aria-hidden="true"
@@ -126,7 +141,11 @@ async function submitLogin(): Promise<void> {
             </section>
 
             <div class="grid gap-6 lg:grid-cols-[1fr_300px]">
-              <AppCard class="w-full">
+              <AppCard
+                class="w-full"
+                data-aos="fade-up"
+                data-aos-delay="50"
+              >
                 <p class="flex items-center gap-2 text-label uppercase text-primary">
                   <AppIcon
                     name="mail"
@@ -161,15 +180,21 @@ async function submitLogin(): Promise<void> {
                       name="login"
                       :size="20"
                     />
-                    Entrar e jogar
+                    Entrar
                   </AppButton>
                 </form>
               </AppCard>
 
-              <GameRulesCard />
+              <GameRulesCard
+                data-aos="fade-up"
+                data-aos-delay="100"
+              />
             </div>
 
-            <ScoringPreview />
+            <ScoringPreview
+              data-aos="fade-up"
+              data-aos-delay="150"
+            />
           </div>
         </div>
       </template>

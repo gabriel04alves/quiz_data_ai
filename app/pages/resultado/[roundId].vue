@@ -17,6 +17,7 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
       v-if="data"
       tone="highlight"
       class="relative overflow-hidden"
+      data-aos="fade-up"
     >
       <AppPixelCluster
         class="absolute right-6 top-6"
@@ -74,7 +75,10 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
       </template>
     </AppCard>
 
-    <AppCard v-else>
+    <AppCard
+      v-else
+      data-aos="fade-up"
+    >
       <p class="text-body text-ink">
         {{ apiErrorMessage(error, 'não foi possível carregar este resultado') }}
       </p>
@@ -92,7 +96,11 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
       </template>
     </AppCard>
 
-    <AppCard v-if="data">
+    <AppCard
+      v-if="data"
+      data-aos="fade-up"
+      data-aos-delay="50"
+    >
       <template #header>
         <h2 class="flex items-center gap-2 text-heading text-ink">
           <AppIcon

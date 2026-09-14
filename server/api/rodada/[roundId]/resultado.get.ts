@@ -3,6 +3,7 @@ import { db } from '../../../db'
 import { questions, roundQuestions } from '../../../db/schema'
 import { getUserRankingPosition } from '../../../services/ranking'
 import { TOTAL_POSITIONS, type RoundDifficulty, type RoundResultResponse } from '../../../../shared/types/round'
+import { parseTopicSelection, primaryTopic } from '../../../../shared/utils/topic-selection'
 
 export default defineEventHandler(async (event): Promise<RoundResultResponse> => {
   const round = await requireOwnedRound(event)
@@ -20,10 +21,12 @@ export default defineEventHandler(async (event): Promise<RoundResultResponse> =>
     .orderBy(asc(roundQuestions.position))
 
   const rankingPosition = await getUserRankingPosition(db, round.userId)
+  const topics = parseTopicSelection(round.topic)
 
   return {
     round_id: round.id,
-    topic: round.topic,
+    topic: primaryTopic(topics),
+    topics,
     score: round.score,
     correct_count: round.correctCount,
     total_positions: TOTAL_POSITIONS,

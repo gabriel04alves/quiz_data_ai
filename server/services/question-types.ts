@@ -5,7 +5,7 @@ export type QuestionDatabase = LibSQLDatabase<typeof schema>
 export type QuestionTransaction = Parameters<Parameters<QuestionDatabase['transaction']>[0]>[0]
 export const DIFFICULTIES = ['facil', 'facil', 'medio', 'medio', 'medio', 'dificil', 'dificil'] as const
 export type Difficulty = typeof DIFFICULTIES[number]
-export interface PreparationInput { userId: string, topic?: string }
+export interface PreparationInput { userId: string, topics?: string[] }
 export type PreparationLogger = (event: string, details: Record<string, unknown>) => void
 export const logPreparation: PreparationLogger = (event, details) => console.info(`[gerador:${event}] ${JSON.stringify(details)}`)
 

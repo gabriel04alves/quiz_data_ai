@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import { chunks, questions, seenChunks } from '../db/schema'
 import { sampleChunks, type SampledChunk, type SamplerDependencies } from './chunk-sampler'
 import {
@@ -135,7 +135,7 @@ async function fallback(input: PreparationInput, dependencies: GeneratorDependen
   const rows = await db.select({ question: questions, chunk: chunks }).from(questions)
     .innerJoin(chunks, eq(questions.chunkId, chunks.id)).where(and(
       eq(questions.active, 1), eq(chunks.active, 1),
-      input.topic === undefined ? undefined : eq(chunks.topic, input.topic),
+      input.topics === undefined ? undefined : inArray(chunks.topic, input.topics),
     )).orderBy(questions.id)
   const seen = new Set((await db.select().from(seenChunks).where(eq(seenChunks.userId, input.userId))).map(row => row.chunkId))
   for (let i = rows.length - 1; i > 0; i--) {

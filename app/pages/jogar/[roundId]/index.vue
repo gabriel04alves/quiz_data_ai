@@ -115,6 +115,7 @@ async function finishRound(): Promise<void> {
   <section class="mx-auto w-full max-w-2xl">
     <QuestionCard
       v-if="question"
+      data-aos="fade-up"
       :question="question"
       :feedback="feedback"
       :chosen-index="chosenIndex"
@@ -164,11 +165,17 @@ async function finishRound(): Promise<void> {
       </template>
     </QuestionCard>
 
-    <AppCard v-else-if="isLoading">
+    <AppCard
+      v-else-if="isLoading"
+      data-aos="fade-up"
+    >
       <p class="text-body text-ink/70">Carregando sua pergunta...</p>
     </AppCard>
 
-    <AppCard v-else>
+    <AppCard
+      v-else
+      data-aos="fade-up"
+    >
       <p class="text-body text-ink">{{ errorMessage ?? 'rodada indisponível' }}</p>
       <template #footer>
         <AppButton

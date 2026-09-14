@@ -53,6 +53,7 @@ export interface RoundResultQuestion {
 export interface RoundResultResponse {
   round_id: string
   topic: string | null
+  topics: string[] | null
   score: number
   correct_count: number
   total_positions: number

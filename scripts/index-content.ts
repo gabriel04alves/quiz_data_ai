@@ -285,6 +285,24 @@ async function synchronizeFiles(
   files: IndexedFile[],
   summaries: Map<string, TopicSummary>,
 ): Promise<void> {
+  // Arquivos que saíram de content/ (ou tópicos renomeados/removidos): desativa os chunks.
+  // Soft delete, porque perguntas e respostas antigas referenciam chunks.
+  const currentSourceFiles = new Set(files.map(file => file.sourceFile))
+  const activeSources = await transaction.execute(
+    'SELECT source_file, topic, COUNT(*) AS total FROM chunks WHERE active = 1 GROUP BY source_file, topic',
+  )
+  for (const row of activeSources.rows) {
+    const sourceFile = String(row.source_file)
+    if (currentSourceFiles.has(sourceFile)) {
+      continue
+    }
+    const result = await transaction.execute({
+      sql: 'UPDATE chunks SET active = 0 WHERE source_file = ? AND topic = ? AND active = 1',
+      args: [sourceFile, String(row.topic)],
+    })
+    getTopicSummary(summaries, String(row.topic)).removed += result.rowsAffected
+  }
+
   for (const file of files) {
     const summary = getTopicSummary(summaries, file.topic)
     summary.removed += await deactivateMissingChunks(transaction, file)

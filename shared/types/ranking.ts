@@ -25,6 +25,7 @@ export interface HistoryEntry {
   round_id: string
   game_date: string
   topic: string | null
+  topics: string[] | null
   score: number
   correct_count: number
   played_at: number

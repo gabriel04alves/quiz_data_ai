@@ -8,10 +8,11 @@ import * as schema from '../server/db/schema'
 import { recordPreparedUsage, sampleChunks } from '../server/services/chunk-sampler'
 import { prepareQuestions, validateQuestions, type GeneratorDependencies } from '../server/services/question-generator'
 import { DIFFICULTIES, PreparationError, type QuestionDatabase, type PreparedQuestions } from '../server/services/question-types'
+import { parseTopicSelection, primaryTopic, serializeTopicSelection } from '../shared/utils/topic-selection'
 
 const timestamp = Date.UTC(2026, 8, 11, 12)
 const day = 86_400_000
-const input = { userId: 'test-user', topic: 'test' }
+const input = { userId: 'test-user', topics: ['test'] }
 const quiet = () => {}
 
 function seededRandom(seed = 42): () => number {
@@ -70,6 +71,14 @@ async function test(name: string, run: (db: QuestionDatabase) => Promise<void>) 
 }
 
 async function simulatedChecks(): Promise<void> {
+  assert.equal(serializeTopicSelection(undefined), null)
+  assert.equal(serializeTopicSelection(['test']), 'test')
+  const serializedTopics = serializeTopicSelection(['test', 'other'])
+  assert.deepEqual(parseTopicSelection(serializedTopics), ['test', 'other'])
+  assert.deepEqual(parseTopicSelection('test'), ['test'])
+  assert.equal(primaryTopic(parseTopicSelection('test')), 'test')
+  assert.equal(primaryTopic(parseTopicSelection(serializedTopics)), null)
+
   await test('geração válida, contrato REST, uma chamada e registro transacional', async db => {
     let calls = 0
     const before = await snapshot(db)
@@ -120,6 +129,11 @@ async function simulatedChecks(): Promise<void> {
     assert.deepEqual(events, [3, 0])
     const allTopics = await sampleChunks({ userId: input.userId }, { ...deps, random: () => 0.999999 })
     assert(allTopics.some(item => item.chunk.topic === 'other'))
+    const selectedTopics = await sampleChunks(
+      { userId: input.userId, topics: ['test', 'other'] },
+      { ...deps, random: () => 0.999999 },
+    )
+    assert(selectedTopics.some(item => item.chunk.topic === 'other'))
   })
   await test('ponderação favorece material menos usado', async db => {
     await db.update(schema.chunks).set({ timesUsed: 100 }).where(sql`${schema.chunks.id} >= 'chunk-07'`)
@@ -214,7 +228,7 @@ async function simulatedChecks(): Promise<void> {
     let calls = 0
     const deps = dependencies(db, async () => { calls++; return new Response('', { status: 500 }) })
     const before = await snapshot(db)
-    await assert.rejects(prepareQuestions({ ...input, topic: 'other' }, deps),
+    await assert.rejects(prepareQuestions({ ...input, topics: ['other'] }, deps),
       (error: unknown) => error instanceof PreparationError && error.code === 'INSUFFICIENT_MATERIAL' && !error.consumeAttempt)
     assert.equal(calls, 0)
     await db.delete(schema.questions)
@@ -250,7 +264,7 @@ async function liveCheck(): Promise<void> {
     const material = await drizzle(source, { schema }).select().from(schema.chunks).where(eq(schema.chunks.active, 1))
     await database(async db => {
       await db.insert(schema.chunks).values(material)
-      const result = await prepareQuestions({ userId: input.userId, topic: 'mdm' }, {
+      const result = await prepareQuestions({ userId: input.userId, topics: ['mdm'] }, {
         db, apiKey: process.env.LLM_API_KEY || '', model: process.env.LLM_MODEL || 'gemini-3.1-flash-lite',
       })
       checkPrepared(result)
