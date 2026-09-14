@@ -22,7 +22,10 @@ const states = [
 
 <template>
   <div class="grid gap-12">
-    <section class="max-w-3xl">
+    <section
+      class="max-w-3xl"
+      data-aos="fade-up"
+    >
       <p class="mb-3 text-label uppercase text-primary">Referência temporária · T02</p>
       <h1 class="text-display text-ink">Sistema visual</h1>
       <p class="mt-5 text-body text-ink/70">
@@ -30,7 +33,7 @@ const states = [
       </p>
     </section>
 
-    <AppCard>
+    <AppCard data-aos="fade-up">
       <template #header>
         <h2 class="text-title text-ink">Paleta semântica</h2>
       </template>
@@ -47,7 +50,10 @@ const states = [
       </div>
     </AppCard>
 
-    <AppCard tone="highlight">
+    <AppCard
+      tone="highlight"
+      data-aos="fade-up"
+    >
       <template #header>
         <h2 class="text-title text-ink">Estados do quiz</h2>
       </template>
@@ -64,7 +70,7 @@ const states = [
       </div>
     </AppCard>
 
-    <AppCard>
+    <AppCard data-aos="fade-up">
       <template #header>
         <h2 class="text-title text-ink">Escala tipográfica</h2>
       </template>
@@ -89,7 +95,7 @@ const states = [
       </div>
     </AppCard>
 
-    <AppCard>
+    <AppCard data-aos="fade-up">
       <template #header>
         <h2 class="text-title text-ink">Componentes</h2>
       </template>

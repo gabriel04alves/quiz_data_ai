@@ -4,16 +4,23 @@ import type { HistoryResponse } from '#shared/types/ranking'
 const { data, error } = await useFetch<HistoryResponse>('/api/historico')
 
 // Rótulo exibido: hífens viram espaços, primeira letra maiúscula (SPEC.md §5.0).
-function topicLabel(topic: string | null): string {
-  if (!topic) return 'Todos os tópicos'
+function topicLabel(topic: string): string {
   const text = topic.replace(/-/g, ' ')
   return `${text.charAt(0).toUpperCase()}${text.slice(1)}`
+}
+
+function topicsLabel(topics: string[] | null): string {
+  if (!topics) return 'Todos os tópicos'
+  return topics.map(topicLabel).join(', ')
 }
 </script>
 
 <template>
   <section class="mx-auto grid w-full max-w-3xl gap-6">
-    <AppCard class="relative overflow-hidden">
+    <AppCard
+      class="relative overflow-hidden"
+      data-aos="fade-up"
+    >
       <AppPixelCluster
         class="absolute right-6 top-6"
         tone="accent"
@@ -62,7 +69,7 @@ function topicLabel(topic: string | null): string {
               />
               {{ rodada.game_date }}
             </p>
-            <p class="text-small text-ink/70">{{ topicLabel(rodada.topic) }}</p>
+            <p class="text-small text-ink/70">{{ topicsLabel(rodada.topics) }}</p>
           </div>
           <div class="text-right">
             <p class="text-body font-semibold text-primary-strong">{{ rodada.score }} pts</p>

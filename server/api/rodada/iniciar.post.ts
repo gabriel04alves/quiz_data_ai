@@ -8,6 +8,7 @@ import { PreparationError } from '../../services/question-types'
 import { TIME_LIMITS_MS } from '../../services/scoring'
 import { findActiveRound } from '../../utils/round-lifecycle'
 import type { StartRoundResponse } from '../../../shared/types/round'
+import { serializeTopicSelection } from '../../../shared/utils/topic-selection'
 
 // Dia-calendário do fuso do jogo ('YYYY-MM-DD'). Histórico e contagem de dias
 // jogados; não é trava de tentativa (SPEC.md §6.3).
@@ -22,6 +23,39 @@ function gameDateIn(timeZone: string, now: number): string {
 
 function isUniqueConstraintError(error: unknown): boolean {
   return error instanceof LibsqlError && error.code === 'SQLITE_CONSTRAINT'
+}
+
+function readTopics(body: unknown): string[] | undefined {
+  if (body === undefined || body === null) return undefined
+  if (typeof body !== 'object' || Array.isArray(body)) {
+    throw createError({ statusCode: 422, statusMessage: 'tópicos inválidos' })
+  }
+
+  const payload = body as { topico?: unknown, topicos?: unknown }
+  if (payload.topicos !== undefined && payload.topico !== undefined) {
+    throw createError({ statusCode: 422, statusMessage: 'informe topico ou topicos, não ambos' })
+  }
+
+  if (payload.topicos !== undefined && payload.topicos !== null) {
+    if (!Array.isArray(payload.topicos) || payload.topicos.length === 0 || payload.topicos.length > 100) {
+      throw createError({ statusCode: 422, statusMessage: 'tópicos inválidos' })
+    }
+
+    const topics = payload.topicos.map(topic => typeof topic === 'string' ? topic.trim() : '')
+    if (topics.some(topic => !topic) || new Set(topics).size !== topics.length) {
+      throw createError({ statusCode: 422, statusMessage: 'tópicos inválidos' })
+    }
+    return topics
+  }
+
+  if (payload.topico !== undefined && payload.topico !== null && payload.topico !== '') {
+    if (typeof payload.topico !== 'string' || !payload.topico.trim()) {
+      throw createError({ statusCode: 422, statusMessage: 'tópico inválido' })
+    }
+    return [payload.topico.trim()]
+  }
+
+  return undefined
 }
 
 async function resumeActiveRound(activeRound: { id: string }): Promise<StartRoundResponse> {
@@ -43,23 +77,7 @@ export default defineEventHandler(async (event): Promise<StartRoundResponse> => 
   if (activeRound) return resumeActiveRound(activeRound)
 
   const body: unknown = await readBody(event)
-  let topic: string | undefined
-
-  if (body !== undefined && body !== null) {
-    if (typeof body !== 'object' || Array.isArray(body)) {
-      throw createError({ statusCode: 422, statusMessage: 'tópico inválido' })
-    }
-
-    const raw = 'topico' in body ? (body as { topico?: unknown }).topico : undefined
-
-    if (raw !== undefined && raw !== null && raw !== '') {
-      if (typeof raw !== 'string') {
-        throw createError({ statusCode: 422, statusMessage: 'tópico inválido' })
-      }
-
-      topic = raw.trim() || undefined
-    }
-  }
+  const topics = readTopics(body)
 
   const config = useRuntimeConfig()
 
@@ -67,7 +85,7 @@ export default defineEventHandler(async (event): Promise<StartRoundResponse> => 
   let prepared
   try {
     prepared = await prepareQuestions(
-      { userId: user.id, topic },
+      { userId: user.id, topics },
       { db, apiKey: config.llmApiKey, model: config.llmModel },
     )
   } catch (error: unknown) {
@@ -112,7 +130,7 @@ export default defineEventHandler(async (event): Promise<StartRoundResponse> => 
       await transaction.insert(rounds).values({
         id: roundId,
         userId: user.id,
-        topic: topic ?? null,
+        topic: serializeTopicSelection(topics),
         gameDate: gameDateIn(config.gameTimezone, now),
         startedAt: now,
       })

@@ -5,7 +5,11 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/tailwindcss', 'nuxt-auth-utils'],
 
-  css: ['~/assets/css/icons.css'],
+  css: [
+    'aos/dist/aos.css',
+    '~/assets/css/icons.css',
+    '~/assets/css/motion.css',
+  ],
 
   app: {
     head: {

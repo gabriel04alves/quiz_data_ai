@@ -18,7 +18,7 @@ export interface SamplerDependencies {
 export async function sampleChunks(input: PreparationInput, dependencies: SamplerDependencies): Promise<SampledChunk[]> {
   const { db, now = Date.now, random = Math.random, log = logPreparation } = dependencies
   const universe = await db.select().from(chunks).where(and(
-    eq(chunks.active, 1), input.topic === undefined ? undefined : eq(chunks.topic, input.topic),
+    eq(chunks.active, 1), input.topics === undefined ? undefined : inArray(chunks.topic, input.topics),
   )).orderBy(chunks.id)
   if (universe.length < 7) throw new PreparationError('INSUFFICIENT_MATERIAL')
   const history = await db.select().from(seenChunks).where(eq(seenChunks.userId, input.userId))

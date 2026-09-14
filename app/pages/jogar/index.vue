@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, shallowRef } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef } from 'vue'
 import type { StartRoundResponse } from '#shared/types/round'
 import type { CurrentRoundResponse } from '~~/server/api/rodada/atual.get'
 import type { TopicOption } from '~~/server/api/topicos.get'
@@ -17,14 +17,21 @@ if (currentRound.value && 'round_id' in currentRound.value) {
 
 const { data: topicsData } = await useFetch<{ topicos: TopicOption[] }>('/api/topicos')
 
-const selectedTopic = shallowRef('')
+const selectedTopics = ref<string[]>([])
 const isPreparing = shallowRef(false)
 const isSlow = shallowRef(false)
 const errorMessage = shallowRef<string | null>(null)
 
 let slowTimer: ReturnType<typeof setTimeout> | undefined
 
+const availableTopics = computed(() => topicsData.value?.topicos ?? [])
+const allTopicsSelected = computed(() => selectedTopics.value.length === 0)
+
 onBeforeUnmount(() => clearTimeout(slowTimer))
+
+function selectAllTopics(): void {
+  selectedTopics.value = []
+}
 
 async function startRound(): Promise<void> {
   errorMessage.value = null
@@ -36,7 +43,7 @@ async function startRound(): Promise<void> {
   try {
     const response = await $fetch<StartRoundResponse>('/api/rodada/iniciar', {
       method: 'POST',
-      body: { topico: selectedTopic.value || undefined },
+      body: { topicos: selectedTopics.value.length ? selectedTopics.value : undefined },
     })
 
     // Evita um GET redundante logo após a preparação.
@@ -57,6 +64,7 @@ async function startRound(): Promise<void> {
       v-if="isPreparing"
       tone="highlight"
       class="relative w-full max-w-xl overflow-hidden"
+      data-aos="fade-up"
     >
       <AppPixelCluster
         class="absolute right-6 top-6"
@@ -89,6 +97,7 @@ async function startRound(): Promise<void> {
     <AppCard
       v-else
       class="relative w-full max-w-xl overflow-hidden"
+      data-aos="fade-up"
     >
       <AppPixelCluster
         class="absolute right-6 top-6"
@@ -96,38 +105,51 @@ async function startRound(): Promise<void> {
         :cell="4"
       />
       <p class="text-label uppercase text-primary">Nova rodada</p>
-      <h1 class="mt-3 text-title text-ink">Sete perguntas, um tópico.</h1>
+      <h1 class="mt-3 text-title text-ink">Sete perguntas, seus tópicos.</h1>
       <p class="mt-4 text-body text-ink/70">
         A dificuldade sobe ao longo da rodada. Responder rápido rende bônus de agilidade,
         mas não há tempo máximo para responder.
       </p>
 
-      <div class="mt-7 grid gap-2">
-        <label
-          for="topico"
-          class="flex items-center gap-1.5 text-small font-semibold text-ink"
-        >
+      <fieldset class="mt-7 grid gap-3">
+        <legend class="flex items-center gap-1.5 text-small font-semibold text-ink">
           <AppIcon
             name="topic"
             :size="16"
           />
-          Tópico
-        </label>
-        <select
-          id="topico"
-          v-model="selectedTopic"
-          class="min-h-11 w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-body text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary/25"
+          Tópicos
+        </legend>
+        <p class="text-small text-ink/70">Escolha um ou mais assuntos para esta rodada.</p>
+        <button
+          type="button"
+          class="flex min-h-11 w-full items-center gap-3 rounded-lg border px-3.5 py-2.5 text-left text-body outline-none transition focus:ring-2 focus:ring-primary/25"
+          :class="allTopicsSelected ? 'border-primary bg-primary/10 text-primary-strong' : 'border-border bg-surface text-ink'"
+          :aria-pressed="allTopicsSelected"
+          @click="selectAllTopics"
         >
-          <option value="">Todos os tópicos</option>
-          <option
-            v-for="topico in topicsData?.topicos ?? []"
+          <AppIcon
+            :name="allTopicsSelected ? 'check_circle' : 'radio_button_unchecked'"
+            :size="20"
+            class="shrink-0"
+          />
+          Todos os tópicos
+        </button>
+        <div class="grid gap-2 sm:grid-cols-2">
+          <label
+            v-for="topico in availableTopics"
             :key="topico.slug"
-            :value="topico.slug"
+            class="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface px-3.5 py-2.5 text-body text-ink transition has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/25"
           >
-            {{ topico.label }}
-          </option>
-        </select>
-      </div>
+            <input
+              v-model="selectedTopics"
+              type="checkbox"
+              :value="topico.slug"
+              class="h-4 w-4 accent-primary"
+            >
+            <span>{{ topico.label }}</span>
+          </label>
+        </div>
+      </fieldset>
 
       <p class="mt-6 flex gap-2 rounded-xl border border-border bg-surface-muted px-4 py-3.5 text-small text-ink/80">
         <AppIcon
