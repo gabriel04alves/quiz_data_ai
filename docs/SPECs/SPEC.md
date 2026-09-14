@@ -365,6 +365,8 @@ Ranking **geral acumulado**, visível para todos os usuários logados.
 | `/jogar/[roundId]` | Pergunta atual, indicador de dificuldade, timer, alternativas, feedback pós-resposta |
 | `/resultado/[roundId]` | Score final, acertos, quebra por pergunta, posição no ranking, botão "Jogar de novo" |
 | `/historico` | Rodadas anteriores do usuário: data, tópico, score, acertos |
+| `/materiais` | Catálogo público das apostilas Markdown usadas pelo quiz |
+| `/materiais/[slug]` | Leitor público da apostila, com sumário e conteúdo renderizado |
 
 ## 8.1 Identidade visual
 
@@ -455,6 +457,13 @@ Casos não cobertos pelo guia (cor de acerto, erro, tempo esgotado, indicador de
 - [ ] Nenhuma ocorrência do logo da Selbetti no repositório ou no build
 - [ ] Nenhum hex solto em `app/components/` ou `app/pages/`
 
+**Materiais de estudo**
+- [ ] Catálogo e leitor são acessíveis sem sessão
+- [ ] Todos os `content/<topico>/*.md` válidos aparecem no catálogo
+- [ ] Títulos, tabelas, listas, citações, links e blocos de código renderizam corretamente
+- [ ] Sumário, âncoras e leitura responsiva funcionam com teclado e em telas pequenas
+- [ ] Slug desconhecido retorna 404 sem permitir acesso arbitrário a arquivos
+
 ---
 
 ## 11. Estrutura de pastas esperada
@@ -471,6 +480,9 @@ app/
     resultado/
       [roundId].vue
     historico.vue
+    materiais/
+      index.vue
+      [slug].vue
   components/
     QuestionCard.vue
     Timer.vue

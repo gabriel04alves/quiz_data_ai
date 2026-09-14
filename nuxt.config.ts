@@ -5,6 +5,20 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/tailwindcss', 'nuxt-auth-utils'],
 
+  // Registra componentes pelo nome do arquivo, sem prefixar o nome da pasta
+  // (ex.: study-materials/MaterialsCatalog.vue → <MaterialsCatalog>).
+  components: [{ path: '~/components', pathPrefix: false }],
+
+  nitro: {
+    devStorage: {
+      'study-materials': {
+        driver: 'fs',
+        base: './content',
+      },
+    },
+    bundledStorage: ['study-materials'],
+  },
+
   css: [
     'aos/dist/aos.css',
     '~/assets/css/icons.css',

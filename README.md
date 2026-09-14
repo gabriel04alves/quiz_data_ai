@@ -2,7 +2,7 @@
 
 Gincana de conhecimento para a equipe de Data & AI da Selbetti: cada jogador dispara rodadas de 7
 perguntas de múltipla escolha, geradas na hora por IA a partir do material de estudo em Markdown,
-e disputa um ranking geral acumulado. Aplicação web single-tenant, uso interno, sem autenticação
+consulta as apostilas em uma área pública e disputa um ranking geral acumulado. Aplicação web single-tenant, uso interno, sem autenticação
 verificada — ver `docs/SPECs/SPEC.md` para a especificação completa do produto.
 
 ## Stack -
@@ -90,6 +90,10 @@ O script fatia os arquivos em chunks, calcula hash de conteúdo e grava em `chun
 chama o LLM, só lê e indexa. Rodar duas vezes não duplica chunks nem reseta `times_used`. Detalhes
 do algoritmo de chunking e do sorteio ponderado estão em `SPEC.md` §5.
 
+As mesmas apostilas são empacotadas no build e ficam disponíveis publicamente em `/materiais`.
+Depois de alterar um arquivo, execute a indexação para atualizar as perguntas e faça um novo deploy
+para atualizar o leitor.
+
 ## Rodando em desenvolvimento
 
 ```sh
@@ -136,7 +140,7 @@ npm run questions:check -- --live
 
 ```
 app/
-  pages/            # rotas (/, /jogar, /resultado/[roundId], /historico, ...)
+  pages/            # rotas (/, /jogar, /resultado/[roundId], /historico, /materiais, ...)
   components/       # AppButton, AppCard, QuestionCard, RankingTable, ...
   composables/      # useCountUp, usePrefersReducedMotion, ...
   layouts/          # layout padrão (header, wordmark, navegação)
