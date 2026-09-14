@@ -17,6 +17,7 @@ function topicsLabel(topics: string[] | null): string {
 
 <template>
   <section class="mx-auto grid w-full max-w-3xl gap-6">
+    <AppBackButton />
     <AppCard
       class="relative overflow-hidden"
       data-aos="fade-up"

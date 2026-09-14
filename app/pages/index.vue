@@ -53,7 +53,17 @@ async function submitLogin(): Promise<void> {
 </script>
 
 <template>
-  <section class="grid min-h-[60vh] place-items-center">
+  <section class="relative isolate grid min-h-[60vh] place-items-center">
+    <!-- Textura da página raiz: grade quadriculada da marca com brilhos suaves,
+         esmaecida nas bordas para não competir com o conteúdo. -->
+    <div
+      class="pointer-events-none absolute -inset-x-5 -inset-y-10 -z-20 [mask-image:radial-gradient(ellipse_at_center,black_35%,transparent_80%)] sm:-inset-x-8 sm:-inset-y-14"
+      aria-hidden="true"
+    >
+      <div class="absolute inset-0 opacity-60 [background-image:linear-gradient(theme(colors.border)_1px,transparent_1px),linear-gradient(90deg,theme(colors.border)_1px,transparent_1px)] [background-size:32px_32px]" />
+      <div class="absolute -left-20 top-10 size-72 rounded-full bg-primary/10 blur-3xl" />
+      <div class="absolute -right-16 bottom-0 size-64 rounded-full bg-accent/10 blur-3xl" />
+    </div>
     <AuthState>
       <template #default="{ loggedIn: sessionLoggedIn, user: sessionUser }">
         <div

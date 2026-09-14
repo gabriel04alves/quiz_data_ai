@@ -30,7 +30,7 @@ function parsePagination(query: Record<string, unknown>): { limit: number, offse
 // Ranking geral acumulado, sem recorte de período (SPEC.md §7). A resposta
 // sempre traz o bloco `me` do usuário da sessão, mesmo fora da página pedida.
 export default defineEventHandler(async (event): Promise<RankingResponse> => {
-  const { user } = await requireUserSession(event)
+  const user = await requireCurrentUser(event)
   const { limit, offset } = parsePagination(getQuery(event))
 
   return getRanking(db, user.id, limit, offset)

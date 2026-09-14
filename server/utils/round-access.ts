@@ -6,7 +6,7 @@ import { finalizeIfStale } from './round-lifecycle'
 
 // Toda rota de rodada passa por aqui: sessão obrigatória e posse do roundId.
 export async function requireOwnedRound(event: H3Event): Promise<Round> {
-  const { user } = await requireUserSession(event)
+  const user = await requireCurrentUser(event)
   const roundId = getRouterParam(event, 'roundId')
 
   if (!roundId) {

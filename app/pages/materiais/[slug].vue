@@ -22,6 +22,11 @@ useSeoMeta({
 
 <template>
   <section class="mx-auto w-full max-w-6xl">
+    <AppBackButton
+      fallback="/materiais"
+      label="Voltar aos materiais"
+      class="mb-4"
+    />
     <StudyMaterialReader :material="material" />
   </section>
 </template>

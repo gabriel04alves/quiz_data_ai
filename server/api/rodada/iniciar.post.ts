@@ -69,7 +69,7 @@ async function resumeActiveRound(activeRound: { id: string }): Promise<StartRoun
 }
 
 export default defineEventHandler(async (event): Promise<StartRoundResponse> => {
-  const { user } = await requireUserSession(event)
+  const user = await requireCurrentUser(event)
 
   // Uma rodada em andamento por vez (SPEC.md §6.3): retoma em vez de criar
   // outra, sem sortear nem chamar o LLM.

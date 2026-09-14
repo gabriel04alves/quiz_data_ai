@@ -11,6 +11,7 @@ useSeoMeta({
 
 <template>
   <section class="mx-auto grid w-full max-w-5xl gap-8">
+    <AppBackButton />
     <header
       class="relative overflow-hidden rounded-2xl border border-border bg-surface px-6 py-9 sm:px-10 sm:py-12"
       data-aos="fade-up"

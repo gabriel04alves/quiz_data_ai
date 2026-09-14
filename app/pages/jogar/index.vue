@@ -59,7 +59,8 @@ async function startRound(): Promise<void> {
 </script>
 
 <template>
-  <section class="grid place-items-center">
+  <section class="grid place-items-center gap-4">
+    <AppBackButton class="justify-self-start" />
     <AppCard
       v-if="isPreparing"
       tone="highlight"

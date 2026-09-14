@@ -4,7 +4,7 @@ import { questions, roundQuestions, rounds } from '../../../db/schema'
 import type { ReportQuestionResponse } from '../../../../shared/types/round'
 
 export default defineEventHandler(async (event): Promise<ReportQuestionResponse> => {
-  const { user } = await requireUserSession(event)
+  const user = await requireCurrentUser(event)
   const questionId = getRouterParam(event, 'id')
 
   if (!questionId) {

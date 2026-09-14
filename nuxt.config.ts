@@ -29,6 +29,7 @@ export default defineNuxtConfig({
     head: {
       link: [
         // Ícones do guia de marca (docs/brand: "iconografia via Google Fonts Material Symbols").
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..500,0..1,-25..0&display=swap' },
       ],
     },

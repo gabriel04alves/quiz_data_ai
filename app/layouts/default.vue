@@ -49,6 +49,17 @@ async function signOut(): Promise<void> {
               <AppButton
                 variant="ghost"
                 size="md"
+                @click="navigateTo('/ranking')"
+              >
+                <AppIcon
+                  name="leaderboard"
+                  :size="18"
+                />
+                Ranking
+              </AppButton>
+              <AppButton
+                variant="ghost"
+                size="md"
                 @click="navigateTo('/historico')"
               >
                 <AppIcon

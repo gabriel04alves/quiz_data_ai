@@ -6,7 +6,7 @@ import { parseTopicSelection, primaryTopic } from '../../shared/utils/topic-sele
 
 // Só rodadas concluídas: uma em andamento não é histórico ainda (SPEC.md §7).
 export default defineEventHandler(async (event): Promise<HistoryResponse> => {
-  const { user } = await requireUserSession(event)
+  const user = await requireCurrentUser(event)
 
   const rows = await db
     .select()

@@ -1,4 +1,4 @@
-const protectedRoutePrefixes = ['/jogar', '/resultado', '/historico']
+const protectedRoutePrefixes = ['/jogar', '/resultado', '/historico', '/ranking']
 
 export default defineNuxtRouteMiddleware(async to => {
   const isProtectedRoute = protectedRoutePrefixes.some(prefix =>

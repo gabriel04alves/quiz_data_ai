@@ -13,6 +13,10 @@ const animatedScore = useCountUp(() => data.value?.score ?? 0, { durationMs: 100
 
 <template>
   <section class="mx-auto grid w-full max-w-2xl gap-6">
+    <AppBackButton
+      label="Voltar ao início"
+      fallback="/"
+    />
     <AppCard
       v-if="data"
       tone="highlight"

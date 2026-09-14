@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, shallowRef } from 'vue'
-import type { RankingEntry, RankingResponse } from '#shared/types/ranking'
+import { computed } from 'vue'
+import type { RankingResponse } from '#shared/types/ranking'
 
 interface Props {
   userId: string
@@ -8,37 +8,21 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const PAGE_SIZE = 50
+const TOP_SIZE = 3
 
+// A chave inclui o usuário e o cache só é reaproveitado na hidratação: sem
+// isso, voltar para a home após jogar (ou trocar de sessão) reexibia uma
+// resposta antiga com `posicao: null` — o "Fora do ranking" indevido.
 const { data, error } = await useFetch<RankingResponse>('/api/ranking', {
-  query: { limit: PAGE_SIZE, offset: 0 },
+  key: `ranking-overview-${props.userId}`,
+  query: { limit: TOP_SIZE, offset: 0 },
+  getCachedData: (key, nuxtApp) => nuxtApp.isHydrating ? nuxtApp.payload.data[key] : undefined,
 })
 
-const entries = shallowRef<RankingEntry[]>(data.value?.ranking ?? [])
-const total = shallowRef(data.value?.total ?? 0)
-const isLoadingMore = shallowRef(false)
-const loadMoreError = shallowRef<string | null>(null)
-
 const me = computed(() => data.value?.me)
-const hasMore = computed(() => entries.value.length < total.value)
+const topEntries = computed(() => data.value?.ranking ?? [])
+const total = computed(() => data.value?.total ?? 0)
 const animatedPoints = useCountUp(() => me.value?.pontos ?? 0)
-
-async function loadMore(): Promise<void> {
-  loadMoreError.value = null
-  isLoadingMore.value = true
-
-  try {
-    const page = await $fetch<RankingResponse>('/api/ranking', {
-      query: { limit: PAGE_SIZE, offset: entries.value.length },
-    })
-    entries.value = [...entries.value, ...page.ranking]
-    total.value = page.total
-  } catch (fetchError: unknown) {
-    loadMoreError.value = apiErrorMessage(fetchError, 'não foi possível carregar mais jogadores')
-  } finally {
-    isLoadingMore.value = false
-  }
-}
 </script>
 
 <template>
@@ -84,32 +68,30 @@ async function loadMore(): Promise<void> {
     </AppCard>
 
     <div>
-      <h2 class="mb-3 flex items-center gap-2 text-heading text-ink">
-        <AppIcon
-          name="leaderboard"
-          :size="20"
-          class="text-primary"
-        />
-        Ranking geral
-      </h2>
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 class="flex items-center gap-2 text-heading text-ink">
+          <AppIcon
+            name="leaderboard"
+            :size="20"
+            class="text-primary"
+          />
+          Top {{ TOP_SIZE }}
+        </h2>
+        <NuxtLink
+          to="/ranking"
+          class="inline-flex min-h-11 items-center gap-1 rounded-lg px-3 py-2 text-body font-semibold text-primary outline-none hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          Ver ranking completo{{ total > TOP_SIZE ? ` (${total})` : '' }}
+          <AppIcon
+            name="arrow_forward"
+            :size="18"
+          />
+        </NuxtLink>
+      </div>
       <RankingTable
-        :entries="entries"
+        :entries="topEntries"
         :highlight-user-id="props.userId"
-        :has-more="hasMore"
-        :is-loading-more="isLoadingMore"
-        @load-more="loadMore"
       />
-      <p
-        v-if="loadMoreError"
-        class="mt-3 text-small font-semibold text-ink"
-      >
-        <AppIcon
-          name="error"
-          :size="16"
-          class="mr-1 -mt-0.5 text-incorrect"
-        />
-        {{ loadMoreError }}
-      </p>
     </div>
   </div>
 </template>
